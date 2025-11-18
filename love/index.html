@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冬日爱心弹窗（优化版）</title>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .main-container {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .main-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .main-desc {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 爱心小弹窗样式（增加尺寸确保文案显示） */
+        .heart-popup {
+            position: absolute;
+            width: 110px;  /* 加宽10px，避免文字拥挤 */
+            height: 70px;  /* 加高10px，适配多行文字 */
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;  /* 增加内边距 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;  /* 过渡时间不变，通过间隔控制速度 */
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .heart-popup.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 弹窗文字样式（强制换行） */
+        .popup-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            line-height: 1.4;
+            white-space: normal;  /* 允许文字自动换行 */
+        }
+
+        /* 返回首页按钮样式 */
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FF7DAB, #FFB6C1);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 125, 171, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 125, 171, 0.5);
+        }
+
+        .back-home-btn:active {
+            transform: translateY(0);
+        }
+
+        .back-home-btn i {
+            font-size: 18px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            .back-home-btn {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 返回首页按钮 -->
+<a href="../index.html" class="back-home-btn">
+    <i class="fa fa-arrow-left"></i>
+    <span>返回首页</span>
+</a>
+
+<div class="main-container">
+    <h1 class="main-title">冬日暖心爱心弹窗</h1>
+    <p class="main-desc">点击小弹窗可关闭 | 自动组成爱心形状</p>
+</div>
+
+<script>
+    // 1. 冬日暖心文案集合（可适当加长，已适配换行）
+    const winterTexts = [
+        "天冷加衣呀❤️",
+        "多喝热水暖身子～",
+        "冬日也要好好吃饭",
+        "注意保暖别感冒啦",
+        "记得穿秋裤哦！",
+        "愿暖阳常伴左右☀️",
+        "寒风大，戴围巾呀",
+        "睡前泡泡脚更舒服",
+        "冬日安康，温暖常伴",
+        "别熬夜，早点休息～"
+    ];
+
+    // 2. 多样化背景色（冬日柔和色系）
+    const popupBackgrounds = [
+        "#FFE6F2", // 浅粉
+        "#E6F7FF", // 浅蓝
+        "#F0F7EE", // 浅绿
+        "#FFF7E6", // 浅黄
+        "#F9E6FF", // 浅紫
+        "#FFEBE6", // 浅橙
+        "#E6F3FF", // 淡蓝
+        "#FFF0F0"  // 淡粉
+    ];
+
+    // 3. 生成爱心坐标（不变）
+    function generateHeartPoints(scale, count) {
+        const points = [];
+        for (let i = 0; i < count; i++) {
+            const angle = 2 * Math.PI * i / count;
+            const x = scale * (16 * Math.pow(Math.sin(angle), 3)) / 16;
+            const y = -scale * (13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle)) / 16;
+            points.push({ x, y });
+        }
+        return points;
+    }
+
+    // 4. 创建弹窗（核心修改处）
+    function createHeartPopups() {
+        const heartPoints = generateHeartPoints(120, 60);
+        const screenCenterX = window.innerWidth / 2;
+        const screenCenterY = window.innerHeight / 2;
+
+        heartPoints.forEach((point, index) => {
+            const popup = document.createElement("div");
+            popup.className = "heart-popup";
+            popup.innerHTML = `<div class="popup-text">${winterTexts[index % winterTexts.length]}</div>`;
+
+            // 随机设置背景色
+            const randomColor = popupBackgrounds[Math.floor(Math.random() * popupBackgrounds.length)];
+            popup.style.backgroundColor = randomColor;
+
+            // 调整位置计算（适配新尺寸）
+            const popupX = screenCenterX + point.x - 55; // 55 = 110/2（新宽度的一半）
+            const popupY = screenCenterY + point.y - 35; // 35 = 70/2（新高度的一半）
+            popup.style.left = `${popupX}px`;
+            popup.style.top = `${popupY}px`;
+
+            // 点击关闭（不变）
+            popup.addEventListener("click", () => {
+                popup.style.opacity = 0;
+                popup.style.transform = "scale(0.8)";
+                setTimeout(() => popup.remove(), 300);
+            });
+
+            document.body.appendChild(popup);
+
+            // 速度调整：原60ms → 133ms（总时长约8秒）
+            setTimeout(() => {
+                popup.classList.add("show");
+            }, index * 133);
+        });
+    }
+
+    window.addEventListener("load", createHeartPopups);
+</script>
+</body>
+</html>
