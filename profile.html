@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>潮流达人小王 - Z+潮流社区</title>
+    <title>个人主页 - Z+潮流社区</title>
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -375,14 +377,14 @@
 
     <!-- 头像 -->
     <div class="avatar-container">
-        <img src="https://picsum.photos/200/200?random=300" alt="头像" class="avatar" id="avatar">
+        <img src="" alt="头像" class="avatar" id="avatar">
     </div>
 </div>
 
 <!-- 个人信息区 -->
 <div class="profile-info">
-    <h1 class="text-2xl font-bold mb-2">潮流达人小王</h1>
-    <p class="text-gray-600 mb-3 flex items-center justify-center gap-1">
+    <h1 class="text-2xl font-bold mb-2" id="profileUsername">加载中...</h1>
+    <p class="text-gray-600 mb-3 flex items-center justify-center gap-1" id="profileBio">
         ✨ 追求自由，热爱潮流，活在当下 🔥
     </p>
 
@@ -409,32 +411,22 @@
     <!-- 数据统计 -->
     <div class="flex justify-center gap-8 mb-6">
         <div class="stat-item" onclick="showFollowers()">
-            <div class="text-2xl font-bold" style="color: #FF6B35;">892</div>
+            <div class="text-2xl font-bold" style="color: #FF6B35;" id="followingCount">0</div>
             <div class="text-sm text-gray-500">关注</div>
         </div>
         <div class="stat-item" onclick="showFans()">
-            <div class="text-2xl font-bold" style="color: #40BFFF;">12.5k</div>
+            <div class="text-2xl font-bold" style="color: #40BFFF;" id="followersCount">0</div>
             <div class="text-sm text-gray-500">粉丝</div>
         </div>
         <div class="stat-item">
-            <div class="text-2xl font-bold" style="color: #FFD166;">246</div>
+            <div class="text-2xl font-bold" style="color: #FFD166;" id="likesCount">0</div>
             <div class="text-sm text-gray-500">获赞</div>
         </div>
     </div>
 
     <!-- 互动按钮 -->
-    <div class="flex justify-center gap-3 px-4">
-        <button class="action-button follow" id="followBtn" onclick="toggleFollow()">
-            <i class="fa fa-plus"></i>
-            <span id="followText">关注</span>
-        </button>
-        <button class="action-button message" onclick="showChat()">
-            <i class="fa fa-comment"></i>
-            <span>私信</span>
-        </button>
-        <button class="action-button gift" onclick="showGiftPanel()">
-            <i class="fa fa-gift gift-icon"></i>
-        </button>
+    <div class="flex justify-center gap-3 px-4" id="actionButtons">
+        <!-- 动态显示:自己的主页显示"编辑资料",别人的主页显示"关注/私信" -->
     </div>
 </div>
 
@@ -663,6 +655,89 @@
 </div>
 
 <script>
+    // 页面加载时检查登录状态并加载用户信息
+    window.addEventListener('DOMContentLoaded', () => {
+        // 检查是否登录
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 加载用户信息
+        loadUserProfile();
+    });
+
+    // 加载用户资料
+    function loadUserProfile() {
+        const user = UserManager.getCurrentUser();
+        if (!user) {
+            alert('获取用户信息失败');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 更新页面标题
+        document.title = `${user.username} - Z+潮流社区`;
+
+        // 填充用户信息
+        document.getElementById('avatar').src = user.avatar;
+        document.getElementById('profileUsername').textContent = user.username;
+        document.getElementById('profileBio').textContent = user.bio || '✨ 追求自由，热爱潮流，活在当下 🔥';
+
+        // 填充标签
+        const tagsContainer = document.getElementById('tagsContainer');
+        tagsContainer.innerHTML = '';
+        user.tags.forEach((tag, index) => {
+            const colors = [
+                'linear-gradient(135deg, #FF6B35, #FF7DAB)',
+                'linear-gradient(135deg, #667EEA, #764BA2)',
+                'linear-gradient(135deg, #4FACFE, #00F2FE)',
+                'linear-gradient(135deg, #43E97B, #38F9D7)'
+            ];
+            const tagDiv = document.createElement('div');
+            tagDiv.className = 'profile-tag';
+            tagDiv.style.background = colors[index % colors.length];
+            tagDiv.style.color = 'white';
+            tagDiv.draggable = true;
+            tagDiv.innerHTML = `
+                <i class="fa fa-star"></i>
+                <span>${tag}</span>
+            `;
+            tagsContainer.appendChild(tagDiv);
+        });
+
+        // 填充统计数据
+        document.getElementById('followingCount').textContent = user.stats.following;
+        document.getElementById('followersCount').textContent = user.stats.followers;
+        document.getElementById('likesCount').textContent = user.stats.likes;
+
+        // 显示编辑资料按钮(因为是自己的主页)
+        const actionButtons = document.getElementById('actionButtons');
+        actionButtons.innerHTML = `
+            <button class="action-button follow" onclick="editProfile()">
+                <i class="fa fa-edit"></i>
+                <span>编辑资料</span>
+            </button>
+        `;
+    }
+
+    // 编辑资料
+    function editProfile() {
+        const user = UserManager.getCurrentUser();
+        const newBio = prompt('修改个性签名:', user.bio);
+        
+        if (newBio !== null && newBio.trim() !== '') {
+            const result = UserManager.updateUserInfo({ bio: newBio.trim() });
+            if (result.success) {
+                alert('更新成功！');
+                loadUserProfile();
+            } else {
+                alert(result.message);
+            }
+        }
+    }
+
     // 返回功能
     function goBack() {
         if (document.referrer) {

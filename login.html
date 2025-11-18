@@ -7,6 +7,8 @@
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -523,13 +525,13 @@
                 type="text"
                 id="username"
                 class="input-field"
-                placeholder="输入你的专属潮号～"
+                placeholder="输入用户名或邮箱～"
                 autocomplete="username"
             >
             <i class="fa fa-user input-icon"></i>
             <div class="error-message" id="usernameError">
                 <span>❌</span>
-                <span>潮号不能为空哦～</span>
+                <span>用户名不能为空哦～</span>
             </div>
         </div>
 
@@ -786,16 +788,16 @@
             return;
         }
 
-        // 模拟登录
+        // 真实登录验证
         loginBtn.classList.add('loading');
         btnText.style.display = 'none';
         loadingDots.classList.add('show');
 
         setTimeout(() => {
-            // 模拟验证失败（演示用）
-            const isSuccess = Math.random() > 0.3; // 70%成功率
+            // 调用UserManager验证登录
+            const result = UserManager.loginUser(username, password);
 
-            if (isSuccess) {
+            if (result.success) {
                 // 登录成功
                 loginBtn.classList.remove('loading');
                 loginBtn.classList.add('success');
@@ -804,7 +806,7 @@
                 loadingDots.classList.remove('show');
 
                 // 显示气泡通知
-                showNotification('✅', '登录成功，潮人已上线～');
+                showNotification('✅', result.message);
 
                 // 跳转到首页
                 setTimeout(() => {
@@ -817,6 +819,7 @@
                 loadingDots.classList.remove('show');
 
                 document.getElementById('password').classList.add('error');
+                passwordError.querySelector('span:last-child').textContent = result.message;
                 passwordError.classList.add('show');
 
                 // 震动反馈

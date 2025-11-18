@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -235,8 +237,22 @@
 
         <!-- 按钮组 -->
         <div class="flex items-center space-x-4">
-            <a href="login.html" class="hidden md:inline-block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-custom">登录</a>
-            <a href="register.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-custom">注册</a>
+            <!-- 未登录状态 -->
+            <div id="authButtons" class="flex items-center space-x-4">
+                <a href="login.html" class="hidden md:inline-block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-custom">登录</a>
+                <a href="register.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-custom">注册</a>
+            </div>
+
+            <!-- 已登录状态 -->
+            <div id="userInfo" class="hidden items-center space-x-3">
+                <a href="profile.html" class="hidden md:flex items-center space-x-2 hover:opacity-80 transition-custom">
+                    <img id="userAvatar" src="" alt="头像" class="w-8 h-8 rounded-full border-2 border-primary">
+                    <span id="userName" class="font-medium text-dark"></span>
+                </a>
+                <button onclick="handleLogout()" class="px-4 py-2 rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-custom">
+                    退出
+                </button>
+            </div>
 
             <!-- 移动端菜单按钮 -->
             <button id="menu-toggle" class="md:hidden text-dark hover:text-primary transition-custom">
@@ -1286,8 +1302,41 @@
 
     optimizeAnimations();
 
+    // 检查登录状态并更新UI
+    function checkLoginState() {
+        const authButtons = document.getElementById('authButtons');
+        const userInfo = document.getElementById('userInfo');
+
+        if (UserManager.isLoggedIn()) {
+            const user = UserManager.getCurrentUser();
+            if (user) {
+                // 显示用户信息
+                authButtons.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex');
+
+                document.getElementById('userAvatar').src = user.avatar;
+                document.getElementById('userName').textContent = user.username;
+            }
+        } else {
+            // 显示登录/注册按钮
+            authButtons.classList.remove('hidden');
+            userInfo.classList.add('hidden');
+        }
+    }
+
+    // 退出登录
+    function handleLogout() {
+        if (confirm('确定要退出登录吗？')) {
+            UserManager.logout();
+            window.location.reload();
+        }
+    }
+
     // 检查是否从注册页跳转过来
     window.addEventListener('DOMContentLoaded', () => {
+        // 检查登录状态
+        checkLoginState();
         const urlParams = new URLSearchParams(window.location.search);
         const registered = urlParams.get('registered');
         const tag = urlParams.get('tag');

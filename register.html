@@ -7,6 +7,8 @@
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -457,7 +459,7 @@
                 type="text"
                 id="username"
                 class="input-field"
-                placeholder="设置你的专属潮号（字母+数字）"
+                placeholder="用户名或邮箱（6-20位，支持特殊字符）"
                 autocomplete="username"
             >
             <i class="fa fa-user input-icon"></i>
@@ -465,6 +467,7 @@
                 <span>❌</span>
                 <span id="usernameErrorText">潮号格式不对哦～</span>
             </div>
+            <p class="text-xs mt-2 text-gray-500">支持字母、数字、邮箱及特殊字符(@._-)</p>
         </div>
 
         <!-- 密码输入框 -->
@@ -473,7 +476,7 @@
                 type="password"
                 id="password"
                 class="input-field"
-                placeholder="设置密码（至少8位，字母+数字）"
+                placeholder="设置密码（8-20位，字母+数字）"
                 autocomplete="new-password"
                 oninput="checkPasswordStrength()"
             >
@@ -542,6 +545,8 @@
     const trendTags = ['潮流新星', '元气玩家', '潮圈新人'];
     let currentTagIndex = 0;
     let autoConfirmTimer = null;
+    let registeredUsername = '';
+    let registeredPassword = '';
 
     // 返回功能
     function goBack() {
@@ -635,18 +640,36 @@
         // 验证
         let hasError = false;
 
-        // 验证用户名（字母和数字）
-        if (!username || !/^[a-zA-Z0-9]+$/.test(username)) {
+        // 验证用户名（6-20位，支持字母、数字、邮箱及特殊字符@._-）
+        const usernameRegex = /^[a-zA-Z0-9@._-]{6,20}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!username) {
             document.getElementById('username').classList.add('error');
-            document.getElementById('usernameErrorText').textContent = '潮号只能包含字母和数字哦～';
+            document.getElementById('usernameErrorText').textContent = '请输入用户名或邮箱～';
+            document.getElementById('usernameError').classList.add('show');
+            hasError = true;
+        } else if (!usernameRegex.test(username) && !emailRegex.test(username)) {
+            document.getElementById('username').classList.add('error');
+            document.getElementById('usernameErrorText').textContent = '用户名格式不正确，6-20位，支持字母数字及@._-';
             document.getElementById('usernameError').classList.add('show');
             hasError = true;
         }
 
-        // 验证密码（至少8位，包含字母和数字）
-        if (!password || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        // 验证密码（8-20位，必须包含字母和数字）
+        if (!password) {
             document.getElementById('password').classList.add('error');
-            document.getElementById('passwordErrorText').textContent = '密码至少8位，需包含字母和数字～';
+            document.getElementById('passwordErrorText').textContent = '请输入密码～';
+            document.getElementById('passwordError').classList.add('show');
+            hasError = true;
+        } else if (password.length < 8 || password.length > 20) {
+            document.getElementById('password').classList.add('error');
+            document.getElementById('passwordErrorText').textContent = '密码长度需要8-20位～';
+            document.getElementById('passwordError').classList.add('show');
+            hasError = true;
+        } else if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+            document.getElementById('password').classList.add('error');
+            document.getElementById('passwordErrorText').textContent = '密码必须包含字母和数字～';
             document.getElementById('passwordError').classList.add('show');
             hasError = true;
         }
@@ -665,6 +688,10 @@
             }
             return;
         }
+
+        // 保存用户名和密码,等待标签选择后再注册
+        registeredUsername = username;
+        registeredPassword = password;
 
         // 开始注册动画
         startRegisterAnimation();
@@ -779,6 +806,16 @@
         const overlay = document.getElementById('overlay');
         const tagCard = document.getElementById('tagCard');
         const selectedTag = trendTags[currentTagIndex];
+
+        // 注册用户到localStorage
+        const result = UserManager.registerUser(registeredUsername, registeredPassword, selectedTag);
+
+        if (!result.success) {
+            // 注册失败(用户名已存在等)
+            alert(result.message);
+            window.location.reload();
+            return;
+        }
 
         // 隐藏卡片
         tagCard.classList.remove('show');
