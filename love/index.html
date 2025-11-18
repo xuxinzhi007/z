@@ -14,77 +14,149 @@
 
         body {
             font-family: "Microsoft YaHei", sans-serif;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #ff9a9e 50%, #fad0c4 75%, #ffecd2 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 20s ease infinite;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: relative;
         }
 
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 页面顶部标题区域 - 简洁版 */
         .main-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
             z-index: 1;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 12px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(255, 125, 171, 0.2);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
 
         .main-title {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FF7DAB, #F093FB, #FF6B9D);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: 1px;
         }
 
         .main-desc {
-            font-size: 16px;
-            color: #666;
+            display: none; /* 隐藏描述文字，保持简洁 */
         }
 
-        /* 爱心小弹窗样式（增加尺寸确保文案显示） */
+        /* 雪花动画 */
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 20px;
+            opacity: 0.8;
+            animation: snowfall linear infinite;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* 爱心小弹窗样式（优化版） */
         .heart-popup {
             position: absolute;
-            width: 110px;  /* 加宽10px，避免文字拥挤 */
-            height: 70px;  /* 加高10px，适配多行文字 */
-            border-radius: 8px;
+            width: 120px;
+            height: 75px;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;  /* 增加内边距 */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 125, 171, 0.4);
             opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.3s ease, transform 0.3s ease;  /* 过渡时间不变，通过间隔控制速度 */
+            transform: scale(0.5) rotate(-10deg);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
             z-index: 10;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
         }
 
         .heart-popup.show {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) rotate(0deg);
         }
 
-        /* 弹窗文字样式（强制换行） */
+        .heart-popup:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 125, 171, 0.6);
+        }
+
+        .heart-popup:active {
+            transform: scale(0.95);
+        }
+
+        /* 弹窗文字样式 */
         .popup-text {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            color: #333;
+            color: #666;
             text-align: center;
             line-height: 1.4;
-            white-space: normal;  /* 允许文字自动换行 */
+            white-space: normal;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
         }
 
         /* 返回首页按钮样式 */
         .back-home-btn {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            bottom: 30px;
+            left: 30px;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #FF7DAB, #FFB6C1);
-            color: white;
-            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            color: #FF7DAB;
+            border: 2px solid #FF7DAB;
             border-radius: 25px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 125, 171, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 125, 171, 0.2);
             transition: all 0.3s ease;
             z-index: 100;
             display: flex;
@@ -94,8 +166,11 @@
         }
 
         .back-home-btn:hover {
+            background: linear-gradient(135deg, #FF7DAB, #FFB6C1);
+            color: white;
+            border-color: transparent;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 125, 171, 0.5);
+            box-shadow: 0 6px 20px rgba(255, 125, 171, 0.4);
         }
 
         .back-home-btn:active {
@@ -109,9 +184,43 @@
         /* 响应式调整 */
         @media (max-width: 640px) {
             .back-home-btn {
+                bottom: 20px;
+                left: 20px;
                 padding: 10px 18px;
-                font-size: 14px;
+                font-size: 13px;
             }
+
+            .main-container {
+                top: 15px;
+                padding: 10px 20px;
+                max-width: 80%;
+            }
+
+            .main-title {
+                font-size: 16px;
+            }
+
+            .heart-popup {
+                width: 100px;
+                height: 65px;
+                padding: 8px;
+            }
+
+            .popup-text {
+                font-size: 11px;
+            }
+
+            /* 移动端减少雪花数量提升性能 */
+            .snowflake:nth-child(n+11) {
+                display: none;
+            }
+        }
+
+        /* 性能优化 */
+        .heart-popup, .snowflake, .back-home-btn {
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
     </style>
 </head>
@@ -142,16 +251,18 @@
         "别熬夜，早点休息～"
     ];
 
-    // 2. 多样化背景色（冬日柔和色系）
+    // 2. 多样化背景色（柔和温暖色系）
     const popupBackgrounds = [
-        "#FFE6F2", // 浅粉
-        "#E6F7FF", // 浅蓝
-        "#F0F7EE", // 浅绿
-        "#FFF7E6", // 浅黄
-        "#F9E6FF", // 浅紫
-        "#FFEBE6", // 浅橙
-        "#E6F3FF", // 淡蓝
-        "#FFF0F0"  // 淡粉
+        "#FFB6C1", // 浅粉红
+        "#FFE4E1", // 雾玫瑰
+        "#FFDAB9", // 桃色
+        "#FFE4B5", // 淡黄
+        "#E0BBE4", // 淡紫
+        "#FFC0CB", // 粉红
+        "#FFD1DC", // 淡粉
+        "#F0E68C", // 卡其色
+        "#DDA0DD", // 梅红
+        "#FFB6D9"  // 樱花粉
     ];
 
     // 3. 生成爱心坐标（不变）
@@ -182,8 +293,8 @@
             popup.style.backgroundColor = randomColor;
 
             // 调整位置计算（适配新尺寸）
-            const popupX = screenCenterX + point.x - 55; // 55 = 110/2（新宽度的一半）
-            const popupY = screenCenterY + point.y - 35; // 35 = 70/2（新高度的一半）
+            const popupX = screenCenterX + point.x - 60; // 60 = 120/2（新宽度的一半）
+            const popupY = screenCenterY + point.y - 37.5; // 37.5 = 75/2（新高度的一半）
             popup.style.left = `${popupX}px`;
             popup.style.top = `${popupY}px`;
 
@@ -203,7 +314,68 @@
         });
     }
 
-    window.addEventListener("load", createHeartPopups);
+    // 5. 创建雪花效果
+    function createSnowflakes() {
+        const snowflakeCount = 20; // 雪花数量
+        const snowflakeChars = ['❄', '❅', '❆', '✻', '✼', '❉']; // 不同的雪花符号
+
+        for (let i = 0; i < snowflakeCount; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
+
+            // 随机位置
+            snowflake.style.left = Math.random() * 100 + '%';
+
+            // 随机大小
+            const size = Math.random() * 20 + 15;
+            snowflake.style.fontSize = size + 'px';
+
+            // 随机动画时长
+            const duration = Math.random() * 10 + 10;
+            snowflake.style.animationDuration = duration + 's';
+
+            // 随机延迟
+            snowflake.style.animationDelay = Math.random() * 5 + 's';
+
+            document.body.appendChild(snowflake);
+        }
+    }
+
+    // 6. 添加爱心中心光晕效果
+    function createCenterGlow() {
+        const glow = document.createElement('div');
+        glow.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 125, 171, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 8;
+            animation: glowPulse 3s ease-in-out infinite;
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes glowPulse {
+                0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+                50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(glow);
+    }
+
+    // 页面加载时执行所有初始化
+    window.addEventListener("load", () => {
+        createHeartPopups();
+        createSnowflakes();
+        createCenterGlow();
+    });
 </script>
 </body>
 </html>
