@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
+    <!-- 引入动态管理模块 -->
+    <script src="js/postsManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -683,7 +685,7 @@
         // 填充用户信息
         document.getElementById('avatar').src = user.avatar;
         document.getElementById('profileUsername').textContent = user.username;
-        document.getElementById('profileBio').textContent = user.bio || '✨ 追求自由，热爱潮流，活在当下 🔥';
+        document.getElementById('profileBio').textContent = user.signature || '分享我的潮流日常～';
 
         // 填充标签
         const tagsContainer = document.getElementById('tagsContainer');
@@ -707,10 +709,10 @@
             tagsContainer.appendChild(tagDiv);
         });
 
-        // 填充统计数据
-        document.getElementById('followingCount').textContent = user.stats.following;
-        document.getElementById('followersCount').textContent = user.stats.followers;
-        document.getElementById('likesCount').textContent = user.stats.likes;
+        // 填充统计数据（简化版本，暂时显示0）
+        document.getElementById('followingCount').textContent = 0;
+        document.getElementById('followersCount').textContent = 0;
+        document.getElementById('likesCount').textContent = user.points || 0; // 使用积分代替获赞数
 
         // 显示编辑资料按钮(因为是自己的主页)
         const actionButtons = document.getElementById('actionButtons');
@@ -725,10 +727,10 @@
     // 编辑资料
     function editProfile() {
         const user = UserManager.getCurrentUser();
-        const newBio = prompt('修改个性签名:', user.bio);
+        const newSignature = prompt('修改个性签名:', user.signature);
         
-        if (newBio !== null && newBio.trim() !== '') {
-            const result = UserManager.updateUserInfo({ bio: newBio.trim() });
+        if (newSignature !== null && newSignature.trim() !== '') {
+            const result = UserManager.updateUserInfo({ signature: newSignature.trim() });
             if (result.success) {
                 alert('更新成功！');
                 loadUserProfile();

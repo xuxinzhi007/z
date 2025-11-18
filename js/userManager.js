@@ -4,11 +4,11 @@
  */
 
 const UserManager = {
-    // 存储键名
+    // 存储键名（对齐标准结构）
     STORAGE_KEYS: {
         USERS: 'z_users',
-        CURRENT_USER: 'z_currentUser',
-        IS_LOGIN: 'z_isLogin'
+        CURRENT_USER: 'currentUser',
+        IS_LOGIN: 'isLogin'
     },
 
     /**
@@ -60,19 +60,15 @@ const UserManager = {
             };
         }
 
-        // 创建新用户
+        // 创建新用户（对齐标准结构）
         const newUser = {
             username: username,
             password: this.encryptPassword(password),
             avatar: `https://picsum.photos/200/200?random=${Date.now()}`,
             tags: [tag],
             signature: '分享我的潮流日常～',
-            bio: '✨ 追求自由，热爱潮流，活在当下 🔥',
-            stats: {
-                following: 0,
-                followers: 0,
-                likes: 0
-            },
+            cover: `https://picsum.photos/800/300?random=${Date.now()}`, // 个人主页封面图
+            points: 0, // 积分系统
             createTime: new Date().toISOString(),
             updateTime: new Date().toISOString()
         };
