@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>复古回潮 x 未来科技 - Z+潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+            background: #f8fafc;
+        }
+
+        /* 顶部封面图 - 沉浸式设计 */
+        .cover-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            min-height: 400px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            padding: 30px 20px;
+            color: white;
+        }
+
+        /* 下拉放大效果 */
+        .cover-container.pulled .cover-image {
+            transform: scale(1.1);
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 话题标签 */
+        .topic-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .topic-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        /* 互动按钮 */
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .action-btn:hover {
+            border-color: #FF6B35;
+            background: #fff5f2;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.active {
+            border-color: #FF6B35;
+            background: #fff5f2;
+        }
+
+        .action-btn.liked {
+            animation: heartBeat 0.6s ease-in-out;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(0.95); }
+            75% { transform: scale(1.1); }
+        }
+
+        /* 固定底栏 */
+        .fixed-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 999;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .fixed-bottom-bar.show {
+            transform: translateY(0);
+        }
+
+        /* 评论区 */
+        .comment-item {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+
+        .comment-item:hover {
+            background: #f8fafc;
+        }
+
+        .reply-item {
+            margin-left: 40px;
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #FF6B35;
+        }
+
+        /* 展开/折叠动画 */
+        .replies-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .replies-container.expanded {
+            max-height: 1000px;
+        }
+
+        /* 横向滚动卡片 */
+        .horizontal-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 16px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scroll-card {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scroll-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 分享面板 */
+        .share-panel {
+            position: fixed;
+            bottom: -300px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .share-panel.show {
+            bottom: 0;
+        }
+
+        .share-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .share-mask.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* 震动反馈（仅移动端） */
+        @media (hover: none) {
+            .action-btn:active {
+                transform: scale(0.95);
+            }
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+<!-- 返回按钮 -->
+<button class="back-btn" onclick="goBack()">
+    <i class="fa fa-arrow-left"></i>
+</button>
+
+<!-- 顶部封面区 -->
+<div class="cover-container" id="coverContainer">
+    <img src="https://picsum.photos/800/1200?random=100" alt="封面图" class="cover-image" id="coverImage">
+    <div class="cover-overlay">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="topic-tag">#街头时尚</span>
+            <span class="topic-tag">#复古潮流</span>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">复古回潮 x 未来科技</h1>
+        <div class="flex items-center gap-4 text-sm opacity-80">
+            <div class="flex items-center gap-1">
+                <img src="https://picsum.photos/32/32?random=201" alt="作者" class="w-6 h-6 rounded-full">
+                <span>潮流达人小王</span>
+            </div>
+            <span>2小时前</span>
+            <span><i class="fa fa-eye mr-1"></i>2.4k</span>
+        </div>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="pb-24">
+    <!-- 内容简介卡片 -->
+    <div class="content-card">
+        <h2 class="text-xl font-bold mb-4" style="color: #1E293B;">潮流解读</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            将90年代复古元素与未来科技感设计完美融合，打造独特视觉冲击。这不仅仅是一种穿搭风格，更是一种生活态度的表达。
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            从Y2K到赛博朋克，从霓虹灯到机能风，这场复古与未来的碰撞，正在重新定义00后的时尚语言。💫
+        </p>
+    </div>
+
+    <!-- 图片展示卡片 -->
+    <div class="content-card">
+        <h3 class="text-lg font-bold mb-3" style="color: #1E293B;">潮流单品推荐</h3>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <img src="https://picsum.photos/400/400?random=101" alt="单品1" class="w-full rounded-lg">
+            <img src="https://picsum.photos/400/400?random=102" alt="单品2" class="w-full rounded-lg">
+            <img src="https://picsum.photos/400/400?random=103" alt="单品3" class="w-full rounded-lg">
+            <img src="https://picsum.photos/400/400?random=104" alt="单品4" class="w-full rounded-lg">
+        </div>
+        <p class="text-sm text-gray-600">
+            <i class="fa fa-lightbulb-o mr-1" style="color: #FFD166;"></i>
+            点击图片查看购买链接
+        </p>
+    </div>
+
+    <!-- 关键点卡片 -->
+    <div class="content-card">
+        <h3 class="text-lg font-bold mb-3" style="color: #1E293B;">穿搭要点</h3>
+        <div class="space-y-3">
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB);">1</div>
+                <div>
+                    <h4 class="font-bold mb-1">色彩碰撞</h4>
+                    <p class="text-sm text-gray-600">大胆使用对比色，打造视觉冲击</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB);">2</div>
+                <div>
+                    <h4 class="font-bold mb-1">材质混搭</h4>
+                    <p class="text-sm text-gray-600">金属质感与复古面料的完美融合</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB);">3</div>
+                <div>
+                    <h4 class="font-bold mb-1">配饰点睛</h4>
+                    <p class="text-sm text-gray-600">科技感配饰提升整体造型质感</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 互动区 -->
+    <div class="content-card" id="interactionSection">
+        <div class="flex items-center justify-around py-4">
+            <button class="action-btn" id="likeBtn" onclick="handleLike()">
+                <i class="fa fa-heart-o text-2xl" id="likeIcon" style="color: #FF6B35;"></i>
+                <span class="text-sm font-medium" id="likeCount">2.3k</span>
+            </button>
+            <button class="action-btn" id="favoriteBtn" onclick="handleFavorite()">
+                <i class="fa fa-star-o text-2xl" id="favoriteIcon" style="color: #FFD166;"></i>
+                <span class="text-sm font-medium" id="favoriteCount">856</span>
+            </button>
+            <button class="action-btn" onclick="showSharePanel()">
+                <i class="fa fa-share-alt text-2xl" style="color: #40BFFF;"></i>
+                <span class="text-sm font-medium">分享</span>
+            </button>
+            <button class="action-btn" onclick="scrollToComments()">
+                <i class="fa fa-comment-o text-2xl" style="color: #FF7DAB;"></i>
+                <span class="text-sm font-medium">324</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 评论区 -->
+    <div class="content-card" id="commentsSection">
+        <h3 class="text-lg font-bold mb-4" style="color: #1E293B;">
+            精彩评论 <span class="text-base text-gray-500">(324)</span>
+        </h3>
+
+        <!-- 评论1 -->
+        <div class="comment-item">
+            <div class="flex items-start gap-3">
+                <img src="https://picsum.photos/40/40?random=202" alt="用户" class="w-10 h-10 rounded-full flex-shrink-0">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm">时尚先锋</span>
+                        <span class="text-xs text-gray-500">3小时前</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-2">太酷了！这种风格正是我想要的，请问衣服在哪买的？</p>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <button class="hover:text-primary" onclick="handleCommentLike(this)">
+                            <i class="fa fa-thumbs-o-up mr-1"></i>128
+                        </button>
+                        <button class="hover:text-primary" onclick="toggleReplies('replies1')">
+                            <i class="fa fa-comment-o mr-1"></i>回复 (5)
+                        </button>
+                    </div>
+
+                    <!-- 楼中楼回复 -->
+                    <div class="replies-container" id="replies1">
+                        <div class="reply-item">
+                            <div class="flex items-start gap-2">
+                                <img src="https://picsum.photos/32/32?random=203" alt="用户" class="w-8 h-8 rounded-full">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-bold text-sm">潮流达人小王</span>
+                                        <span class="text-xs px-2 py-0.5 rounded-full text-white" style="background: #FF6B35;">作者</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-1">
+                                        <span style="color: #40BFFF;">@时尚先锋</span> 详情页底部有购买链接哦～
+                                    </p>
+                                    <span class="text-xs text-gray-500">2小时前</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reply-item">
+                            <div class="flex items-start gap-2">
+                                <img src="https://picsum.photos/32/32?random=204" alt="用户" class="w-8 h-8 rounded-full">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-bold text-sm">穿搭博主</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-1">我也想知道哪里买！</p>
+                                    <span class="text-xs text-gray-500">2小时前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 评论2 -->
+        <div class="comment-item">
+            <div class="flex items-start gap-3">
+                <img src="https://picsum.photos/40/40?random=205" alt="用户" class="w-10 h-10 rounded-full flex-shrink-0">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm">复古爱好者</span>
+                        <span class="text-xs text-gray-500">5小时前</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-2">终于看到有人把Y2K和赛博风格结合得这么好了！👍</p>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <button class="hover:text-primary" onclick="handleCommentLike(this)">
+                            <i class="fa fa-thumbs-o-up mr-1"></i>89
+                        </button>
+                        <button class="hover:text-primary" onclick="toggleReplies('replies2')">
+                            <i class="fa fa-comment-o mr-1"></i>回复 (2)
+                        </button>
+                    </div>
+
+                    <div class="replies-container" id="replies2">
+                        <div class="reply-item">
+                            <div class="flex items-start gap-2">
+                                <img src="https://picsum.photos/32/32?random=206" alt="用户" class="w-8 h-8 rounded-full">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-bold text-sm">设计师小李</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-1">
+                                        <span style="color: #40BFFF;">@复古爱好者</span> 对对对，这才是真正的fusion！
+                                    </p>
+                                    <span class="text-xs text-gray-500">4小时前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 评论3 -->
+        <div class="comment-item">
+            <div class="flex items-start gap-3">
+                <img src="https://picsum.photos/40/40?random=207" alt="用户" class="w-10 h-10 rounded-full flex-shrink-0">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-bold text-sm">潮流小白</span>
+                        <span class="text-xs text-gray-500">1天前</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-2">太适合我了！准备照着买一套～</p>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <button class="hover:text-primary" onclick="handleCommentLike(this)">
+                            <i class="fa fa-thumbs-o-up mr-1"></i>56
+                        </button>
+                        <button class="hover:text-primary">
+                            <i class="fa fa-comment-o mr-1"></i>回复
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查看更多评论 -->
+        <div class="text-center mt-4">
+            <button class="px-6 py-2 rounded-full border-2 text-sm font-medium hover:bg-gray-50 transition" style="border-color: #FF6B35; color: #FF6B35;">
+                查看全部 324 条评论
+            </button>
+        </div>
+    </div>
+
+    <!-- 相关推荐 -->
+    <div class="mt-4">
+        <div class="px-4 py-3 flex items-center justify-between">
+            <h3 class="text-lg font-bold" style="color: #1E293B;">相关潮流</h3>
+            <button class="text-sm" style="color: #FF6B35;">更多 <i class="fa fa-angle-right"></i></button>
+        </div>
+
+        <div class="horizontal-scroll">
+            <div class="scroll-card" onclick="location.href='trend-detail.html'">
+                <img src="https://picsum.photos/280/200?random=110" alt="推荐1" class="w-full h-40 object-cover">
+                <div class="p-3">
+                    <h4 class="font-bold text-sm mb-1">独立音乐崛起</h4>
+                    <p class="text-xs text-gray-500 mb-2">小众音乐成为新潮流</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span><i class="fa fa-eye mr-1"></i>3.2k</span>
+                        <span><i class="fa fa-heart mr-1"></i>890</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-card" onclick="location.href='trend-detail.html'">
+                <img src="https://picsum.photos/280/200?random=111" alt="推荐2" class="w-full h-40 object-cover">
+                <div class="p-3">
+                    <h4 class="font-bold text-sm mb-1">极简主义生活</h4>
+                    <p class="text-xs text-gray-500 mb-2">断舍离成为新潮流</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span><i class="fa fa-eye mr-1"></i>2.8k</span>
+                        <span><i class="fa fa-heart mr-1"></i>756</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-card" onclick="location.href='trend-detail.html'">
+                <img src="https://picsum.photos/280/200?random=112" alt="推荐3" class="w-full h-40 object-cover">
+                <div class="p-3">
+                    <h4 class="font-bold text-sm mb-1">电竞文化</h4>
+                    <p class="text-xs text-gray-500 mb-2">游戏成为社交新方式</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span><i class="fa fa-eye mr-1"></i>4.1k</span>
+                        <span><i class="fa fa-heart mr-1"></i>1.2k</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-card" onclick="location.href='trend-detail.html'">
+                <img src="https://picsum.photos/280/200?random=113" alt="推荐4" class="w-full h-40 object-cover">
+                <div class="p-3">
+                    <h4 class="font-bold text-sm mb-1">健康轻食</h4>
+                    <p class="text-xs text-gray-500 mb-2">低脂高颜值饮食新选择</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span><i class="fa fa-eye mr-1"></i>2.5k</span>
+                        <span><i class="fa fa-heart mr-1"></i>678</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 固定底栏 -->
+<div class="fixed-bottom-bar" id="fixedBar">
+    <button class="action-btn flex-1" onclick="handleLike()">
+        <i class="fa fa-heart-o text-xl" style="color: #FF6B35;"></i>
+    </button>
+    <button class="action-btn flex-1" onclick="handleFavorite()">
+        <i class="fa fa-star-o text-xl" style="color: #FFD166;"></i>
+    </button>
+    <button class="action-btn flex-1" onclick="showSharePanel()">
+        <i class="fa fa-share-alt text-xl" style="color: #40BFFF;"></i>
+    </button>
+    <button class="flex-1 py-3 rounded-full text-white font-medium" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB);" onclick="scrollToComments()">
+        写评论
+    </button>
+</div>
+
+<!-- 分享面板 -->
+<div class="share-mask" id="shareMask" onclick="hideSharePanel()"></div>
+<div class="share-panel" id="sharePanel">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">分享到</h3>
+        <button onclick="hideSharePanel()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 mb-4">
+        <button class="flex flex-col items-center gap-2" onclick="share('wechat')">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: #07C160;">
+                <i class="fa fa-wechat text-white text-2xl"></i>
+            </div>
+            <span class="text-xs">微信</span>
+        </button>
+        <button class="flex flex-col items-center gap-2" onclick="share('moments')">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: #1AAD19;">
+                <i class="fa fa-users text-white text-2xl"></i>
+            </div>
+            <span class="text-xs">朋友圈</span>
+        </button>
+        <button class="flex flex-col items-center gap-2" onclick="share('weibo')">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: #E6162D;">
+                <i class="fa fa-weibo text-white text-2xl"></i>
+            </div>
+            <span class="text-xs">微博</span>
+        </button>
+        <button class="flex flex-col items-center gap-2" onclick="share('copy')">
+            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: #8B8B8B;">
+                <i class="fa fa-link text-white text-2xl"></i>
+            </div>
+            <span class="text-xs">复制链接</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    // 返回功能
+    function goBack() {
+        // 如果是从首页进来的，直接返回
+        if (document.referrer.includes('index.html') || document.referrer.includes(window.location.origin)) {
+            window.history.back();
+        } else {
+            // 否则跳转到首页
+            window.location.href = 'index.html';
+        }
+    }
+
+    // 封面下拉放大效果
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    const coverContainer = document.getElementById('coverContainer');
+    const coverImage = document.getElementById('coverImage');
+
+    coverContainer.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+        }
+    });
+
+    coverContainer.addEventListener('touchmove', (e) => {
+        if (isDragging && window.scrollY === 0) {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+
+            if (diff > 0) {
+                e.preventDefault();
+                const scale = 1 + (diff / 500);
+                coverImage.style.transform = `scale(${Math.min(scale, 1.3)})`;
+            }
+        }
+    });
+
+    coverContainer.addEventListener('touchend', () => {
+        isDragging = false;
+        coverImage.style.transform = 'scale(1)';
+    });
+
+    // 固定底栏显示/隐藏
+    const fixedBar = document.getElementById('fixedBar');
+    const interactionSection = document.getElementById('interactionSection');
+
+    let lastScrollY = window.scrollY;
+
+    window.addEventListener('scroll', () => {
+        const interactionRect = interactionSection.getBoundingClientRect();
+
+        // 当互动区滚出视窗时显示固定底栏
+        if (interactionRect.bottom < 0) {
+            fixedBar.classList.add('show');
+        } else {
+            fixedBar.classList.remove('show');
+        }
+
+        lastScrollY = window.scrollY;
+    });
+
+    // 点赞功能
+    let isLiked = false;
+    function handleLike() {
+        const likeBtn = document.getElementById('likeBtn');
+        const likeIcon = document.getElementById('likeIcon');
+        const likeCount = document.getElementById('likeCount');
+
+        if (!isLiked) {
+            likeIcon.className = 'fa fa-heart text-2xl';
+            likeBtn.classList.add('liked', 'active');
+            likeCount.textContent = '2.4k';
+
+            // 震动反馈（仅支持的设备）
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            // 移除动画类以便下次触发
+            setTimeout(() => {
+                likeBtn.classList.remove('liked');
+            }, 600);
+        } else {
+            likeIcon.className = 'fa fa-heart-o text-2xl';
+            likeBtn.classList.remove('active');
+            likeCount.textContent = '2.3k';
+        }
+
+        isLiked = !isLiked;
+    }
+
+    // 收藏功能
+    let isFavorited = false;
+    function handleFavorite() {
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const favoriteIcon = document.getElementById('favoriteIcon');
+        const favoriteCount = document.getElementById('favoriteCount');
+
+        if (!isFavorited) {
+            favoriteIcon.className = 'fa fa-star text-2xl';
+            favoriteBtn.classList.add('active');
+            favoriteCount.textContent = '857';
+
+            // 震动反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        } else {
+            favoriteIcon.className = 'fa fa-star-o text-2xl';
+            favoriteBtn.classList.remove('active');
+            favoriteCount.textContent = '856';
+        }
+
+        isFavorited = !isFavorited;
+    }
+
+    // 滚动到评论区
+    function scrollToComments() {
+        document.getElementById('commentsSection').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    // 展开/折叠回复
+    function toggleReplies(id) {
+        const repliesContainer = document.getElementById(id);
+        repliesContainer.classList.toggle('expanded');
+    }
+
+    // 评论点赞
+    function handleCommentLike(button) {
+        const icon = button.querySelector('i');
+        const isLiked = icon.classList.contains('fa-thumbs-up');
+
+        if (isLiked) {
+            icon.classList.replace('fa-thumbs-up', 'fa-thumbs-o-up');
+        } else {
+            icon.classList.replace('fa-thumbs-o-up', 'fa-thumbs-up');
+        }
+
+        // 震动反馈
+        if ('vibrate' in navigator) {
+            navigator.vibrate(30);
+        }
+    }
+
+    // 显示分享面板
+    function showSharePanel() {
+        document.getElementById('shareMask').classList.add('show');
+        document.getElementById('sharePanel').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // 隐藏分享面板
+    function hideSharePanel() {
+        document.getElementById('shareMask').classList.remove('show');
+        document.getElementById('sharePanel').classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    // 分享功能
+    function share(platform) {
+        const title = '复古回潮 x 未来科技 - Z+潮流社区';
+        const url = window.location.href;
+
+        switch(platform) {
+            case 'copy':
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('链接已复制！');
+                    hideSharePanel();
+                });
+                break;
+            case 'wechat':
+            case 'moments':
+            case 'weibo':
+                alert(`分享到${platform === 'wechat' ? '微信' : platform === 'moments' ? '朋友圈' : '微博'}功能开发中...`);
+                break;
+        }
+    }
+
+    // 长按分享
+    let longPressTimer;
+    document.querySelectorAll('.content-card').forEach(card => {
+        card.addEventListener('touchstart', (e) => {
+            longPressTimer = setTimeout(() => {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+                showSharePanel();
+            }, 800);
+        });
+
+        card.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        });
+
+        card.addEventListener('touchmove', () => {
+            clearTimeout(longPressTimer);
+        });
+    });
+</script>
+</body>
+</html>
