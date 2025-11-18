@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>潮流达人小王 - Z+潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+            background: #f8fafc;
+        }
+
+        /* 个性化封面 */
+        .profile-cover {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* 装饰贴纸 */
+        .sticker {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .sticker:nth-child(2) { animation-delay: 1s; }
+        .sticker:nth-child(3) { animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* 头像 */
+        .avatar-container {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 6px solid white;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .avatar:hover {
+            transform: rotate(360deg) scale(1.05);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+        }
+
+        /* 返回和设置按钮 */
+        .header-btn {
+            position: absolute;
+            top: 20px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-btn.back {
+            left: 20px;
+        }
+
+        .header-btn.settings {
+            right: 20px;
+        }
+
+        /* 个人信息区 */
+        .profile-info {
+            margin-top: 80px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* 人设标签 */
+        .profile-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .profile-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-tag.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+
+        /* 内容分区 Tabs */
+        .tabs-container {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            flex-shrink: 0;
+            padding: 16px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #FF6B35;
+            border-bottom-color: #FF6B35;
+        }
+
+        .tab:hover {
+            color: #FF6B35;
+        }
+
+        /* 内容区域 */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 作品卡片 */
+        .work-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .work-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .work-card img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .work-card:hover img {
+            transform: scale(1.05);
+        }
+
+        /* 互动按钮 */
+        .action-button {
+            padding: 12px 32px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-button.follow {
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+        }
+
+        .action-button.following {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+
+        .action-button.message {
+            background: white;
+            border: 2px solid #FF6B35;
+            color: #FF6B35;
+        }
+
+        .action-button.gift {
+            background: white;
+            border: 2px solid #FFD166;
+            color: #FFD166;
+        }
+
+        /* 聊天面板 */
+        .chat-panel {
+            position: fixed;
+            bottom: -600px;
+            left: 0;
+            right: 0;
+            height: 70vh;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 24px;
+        }
+
+        .chat-panel.show {
+            bottom: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* 礼物动效 */
+        .gift-icon {
+            display: inline-block;
+            animation: giftBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes giftBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 数据统计 */
+        .stat-item {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<!-- 返回按钮 -->
+<button class="header-btn back" onclick="goBack()">
+    <i class="fa fa-arrow-left"></i>
+</button>
+
+<!-- 设置按钮 -->
+<button class="header-btn settings" onclick="showSettings()">
+    <i class="fa fa-cog"></i>
+</button>
+
+<!-- 个性化封面 -->
+<div class="profile-cover">
+    <!-- 装饰贴纸 -->
+    <span class="sticker" style="top: 20px; left: 10%;">⭐</span>
+    <span class="sticker" style="top: 100px; right: 15%;">🎮</span>
+    <span class="sticker" style="bottom: 60px; left: 20%;">👗</span>
+    <span class="sticker" style="top: 50px; right: 30%;">🎵</span>
+
+    <!-- 头像 -->
+    <div class="avatar-container">
+        <img src="https://picsum.photos/200/200?random=300" alt="头像" class="avatar" id="avatar">
+    </div>
+</div>
+
+<!-- 个人信息区 -->
+<div class="profile-info">
+    <h1 class="text-2xl font-bold mb-2">潮流达人小王</h1>
+    <p class="text-gray-600 mb-3 flex items-center justify-center gap-1">
+        ✨ 追求自由，热爱潮流，活在当下 🔥
+    </p>
+
+    <!-- 人设标签 -->
+    <div class="flex flex-wrap justify-center mb-4" id="tagsContainer">
+        <div class="profile-tag" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB); color: white;" draggable="true">
+            <i class="fa fa-gamepad"></i>
+            <span>游戏达人</span>
+        </div>
+        <div class="profile-tag" style="background: linear-gradient(135deg, #667EEA, #764BA2); color: white;" draggable="true">
+            <i class="fa fa-shopping-bag"></i>
+            <span>穿搭博主</span>
+        </div>
+        <div class="profile-tag" style="background: linear-gradient(135deg, #4FACFE, #00F2FE); color: white;" draggable="true">
+            <i class="fa fa-music"></i>
+            <span>音乐发烧友</span>
+        </div>
+        <div class="profile-tag" style="background: linear-gradient(135deg, #43E97B, #38F9D7); color: white;" draggable="true">
+            <i class="fa fa-camera"></i>
+            <span>摄影爱好者</span>
+        </div>
+    </div>
+
+    <!-- 数据统计 -->
+    <div class="flex justify-center gap-8 mb-6">
+        <div class="stat-item" onclick="showFollowers()">
+            <div class="text-2xl font-bold" style="color: #FF6B35;">892</div>
+            <div class="text-sm text-gray-500">关注</div>
+        </div>
+        <div class="stat-item" onclick="showFans()">
+            <div class="text-2xl font-bold" style="color: #40BFFF;">12.5k</div>
+            <div class="text-sm text-gray-500">粉丝</div>
+        </div>
+        <div class="stat-item">
+            <div class="text-2xl font-bold" style="color: #FFD166;">246</div>
+            <div class="text-sm text-gray-500">获赞</div>
+        </div>
+    </div>
+
+    <!-- 互动按钮 -->
+    <div class="flex justify-center gap-3 px-4">
+        <button class="action-button follow" id="followBtn" onclick="toggleFollow()">
+            <i class="fa fa-plus"></i>
+            <span id="followText">关注</span>
+        </button>
+        <button class="action-button message" onclick="showChat()">
+            <i class="fa fa-comment"></i>
+            <span>私信</span>
+        </button>
+        <button class="action-button gift" onclick="showGiftPanel()">
+            <i class="fa fa-gift gift-icon"></i>
+        </button>
+    </div>
+</div>
+
+<!-- 内容分区 Tabs -->
+<div class="tabs-container mt-8">
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('trends')">
+            我的潮流 <span style="color: #FF6B35; font-size: 12px; margin-left: 4px;">42</span>
+        </div>
+        <div class="tab" onclick="switchTab('favorites')">
+            收藏 <span style="color: #FFD166; font-size: 12px; margin-left: 4px;">128</span>
+        </div>
+        <div class="tab" onclick="switchTab('groups')">
+            社群 <span style="color: #40BFFF; font-size: 12px; margin-left: 4px;">15</span>
+        </div>
+        <div class="tab" onclick="switchTab('moments')">
+            动态 <span style="color: #FF7DAB; font-size: 12px; margin-left: 4px;">89</span>
+        </div>
+    </div>
+</div>
+
+<!-- 我的潮流内容 -->
+<div class="tab-content active" id="trends">
+    <div class="grid grid-cols-2 gap-4 p-4">
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=400" alt="作品1">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">复古回潮 x 未来科技</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>2.4k</span>
+                    <span><i class="fa fa-heart mr-1"></i>890</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=401" alt="作品2">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">Y2K穿搭指南</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>3.2k</span>
+                    <span><i class="fa fa-heart mr-1"></i>1.2k</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=402" alt="作品3">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">街头摄影分享</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>1.8k</span>
+                    <span><i class="fa fa-heart mr-1"></i>756</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=403" alt="作品4">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">独立音乐推荐</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>2.1k</span>
+                    <span><i class="fa fa-heart mr-1"></i>678</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=404" alt="作品5">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">游戏装备测评</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>4.5k</span>
+                    <span><i class="fa fa-heart mr-1"></i>1.5k</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=405" alt="作品6">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">咖啡店打卡</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>1.9k</span>
+                    <span><i class="fa fa-heart mr-1"></i>589</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 收藏内容 -->
+<div class="tab-content" id="favorites">
+    <div class="grid grid-cols-2 gap-4 p-4">
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=410" alt="收藏1">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">极简主义生活</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>2.8k</span>
+                    <span><i class="fa fa-star mr-1" style="color: #FFD166;"></i>已收藏</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="work-card" onclick="location.href='trend-detail.html'">
+            <img src="https://picsum.photos/400/300?random=411" alt="收藏2">
+            <div class="p-3">
+                <h3 class="font-bold text-sm mb-1">健康轻食食谱</h3>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span><i class="fa fa-eye mr-1"></i>3.5k</span>
+                    <span><i class="fa fa-star mr-1" style="color: #FFD166;"></i>已收藏</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 社群内容 -->
+<div class="tab-content" id="groups">
+    <div class="p-4 space-y-3">
+        <div class="bg-white rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition cursor-pointer" onclick="location.href='#'">
+            <img src="https://picsum.photos/80/80?random=420" alt="社群" class="w-16 h-16 rounded-lg">
+            <div class="flex-1">
+                <h3 class="font-bold mb-1">游戏爱好者</h3>
+                <p class="text-xs text-gray-500">12.5k 成员 · 今日活跃 2.3k</p>
+            </div>
+            <i class="fa fa-angle-right text-gray-400"></i>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition cursor-pointer" onclick="location.href='#'">
+            <img src="https://picsum.photos/80/80?random=421" alt="社群" class="w-16 h-16 rounded-lg">
+            <div class="flex-1">
+                <h3 class="font-bold mb-1">潮流穿搭</h3>
+                <p class="text-xs text-gray-500">15.3k 成员 · 今日活跃 3.8k</p>
+            </div>
+            <i class="fa fa-angle-right text-gray-400"></i>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition cursor-pointer" onclick="location.href='#'">
+            <img src="https://picsum.photos/80/80?random=422" alt="社群" class="w-16 h-16 rounded-lg">
+            <div class="flex-1">
+                <h3 class="font-bold mb-1">独立音乐圈</h3>
+                <p class="text-xs text-gray-500">8.7k 成员 · 今日活跃 1.5k</p>
+            </div>
+            <i class="fa fa-angle-right text-gray-400"></i>
+        </div>
+    </div>
+</div>
+
+<!-- 动态内容 -->
+<div class="tab-content" id="moments">
+    <div class="p-4 space-y-4">
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <img src="https://picsum.photos/40/40?random=300" alt="头像" class="w-10 h-10 rounded-full">
+                <div class="flex-1">
+                    <h4 class="font-bold text-sm">潮流达人小王</h4>
+                    <p class="text-xs text-gray-500">2小时前</p>
+                </div>
+            </div>
+            <p class="text-sm mb-3">今天去了新开的街头潮店，发现了好多有意思的单品！分享给大家～ #潮流分享 #街头风格</p>
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <img src="https://picsum.photos/200/200?random=430" alt="动态图" class="rounded-lg">
+                <img src="https://picsum.photos/200/200?random=431" alt="动态图" class="rounded-lg">
+                <img src="https://picsum.photos/200/200?random=432" alt="动态图" class="rounded-lg">
+            </div>
+            <div class="flex items-center gap-6 text-sm text-gray-500">
+                <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>89</button>
+                <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>23</button>
+                <button class="hover:text-primary"><i class="fa fa-share-alt mr-1"></i>12</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <img src="https://picsum.photos/40/40?random=300" alt="头像" class="w-10 h-10 rounded-full">
+                <div class="flex-1">
+                    <h4 class="font-bold text-sm">潮流达人小王</h4>
+                    <p class="text-xs text-gray-500">1天前</p>
+                </div>
+            </div>
+            <p class="text-sm mb-3">今天的穿搭灵感来自90年代复古风～ 你们觉得怎么样？💫</p>
+            <img src="https://picsum.photos/600/400?random=433" alt="动态图" class="rounded-lg mb-3 w-full">
+            <div class="flex items-center gap-6 text-sm text-gray-500">
+                <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>156</button>
+                <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>45</button>
+                <button class="hover:text-primary"><i class="fa fa-share-alt mr-1"></i>18</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 遮罩层 -->
+<div class="overlay" id="overlay" onclick="hideAllPanels()"></div>
+
+<!-- 聊天面板 -->
+<div class="chat-panel" id="chatPanel">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <img src="https://picsum.photos/40/40?random=300" alt="头像" class="w-10 h-10 rounded-full">
+            <div>
+                <h3 class="font-bold">潮流达人小王</h3>
+                <p class="text-xs text-gray-500">在线</p>
+            </div>
+        </div>
+        <button onclick="hideChat()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <div class="flex-1 bg-gray-50 rounded-xl p-4 mb-4" style="height: calc(100% - 140px); overflow-y: auto;">
+        <div class="empty-state">
+            <i class="fa fa-comments-o"></i>
+            <p>开始聊天吧～</p>
+        </div>
+    </div>
+
+    <div class="flex gap-2">
+        <input type="text" placeholder="输入消息..." class="flex-1 px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:border-primary">
+        <button class="w-12 h-12 rounded-full flex items-center justify-center text-white" style="background: linear-gradient(135deg, #FF6B35, #FF7DAB);">
+            <i class="fa fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    // 返回功能
+    function goBack() {
+        if (document.referrer) {
+            window.history.back();
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // 设置
+    function showSettings() {
+        alert('设置功能开发中...');
+    }
+
+    // 切换Tab
+    function switchTab(tabName) {
+        // 移除所有active类
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // 添加active类到当前tab
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+    }
+
+    // 关注功能
+    let isFollowing = false;
+    function toggleFollow() {
+        const followBtn = document.getElementById('followBtn');
+        const followText = document.getElementById('followText');
+
+        if (!isFollowing) {
+            followBtn.classList.remove('follow');
+            followBtn.classList.add('following');
+            followText.textContent = '已关注';
+
+            // 震动反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            // 动画效果
+            followBtn.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                followBtn.style.transform = 'scale(1)';
+            }, 200);
+        } else {
+            followBtn.classList.remove('following');
+            followBtn.classList.add('follow');
+            followText.textContent = '关注';
+        }
+
+        isFollowing = !isFollowing;
+    }
+
+    // 显示聊天
+    function showChat() {
+        document.getElementById('overlay').classList.add('show');
+        document.getElementById('chatPanel').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // 隐藏聊天
+    function hideChat() {
+        document.getElementById('overlay').classList.remove('show');
+        document.getElementById('chatPanel').classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    // 隐藏所有面板
+    function hideAllPanels() {
+        hideChat();
+    }
+
+    // 显示礼物面板
+    function showGiftPanel() {
+        alert('打赏功能开发中...\n支持赠送虚拟礼物：\n🎁 鲜花\n💎 钻石\n👑 王冠');
+    }
+
+    // 显示关注列表
+    function showFollowers() {
+        alert('关注列表功能开发中...');
+    }
+
+    // 显示粉丝列表
+    function showFans() {
+        alert('粉丝列表功能开发中...');
+    }
+
+    // 标签拖拽功能
+    const tagsContainer = document.getElementById('tagsContainer');
+    let draggedElement = null;
+
+    tagsContainer.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('profile-tag')) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+        }
+    });
+
+    tagsContainer.addEventListener('dragend', (e) => {
+        if (e.target.classList.contains('profile-tag')) {
+            e.target.classList.remove('dragging');
+        }
+    });
+
+    tagsContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(tagsContainer, e.clientX);
+        if (afterElement == null) {
+            tagsContainer.appendChild(draggedElement);
+        } else {
+            tagsContainer.insertBefore(draggedElement, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, x) {
+        const draggableElements = [...container.querySelectorAll('.profile-tag:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // 头像点击放大
+    document.getElementById('avatar').addEventListener('click', () => {
+        alert('头像预览功能开发中...');
+    });
+</script>
+</body>
+</html>

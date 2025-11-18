@@ -200,6 +200,17 @@
 </head>
 
 <body class="bg-light text-dark antialiased">
+<!-- 注册成功通知条 -->
+<div id="registerNotification" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-6 py-3 rounded-full shadow-lg z-50 opacity-0 pointer-events-none transition-all duration-500" style="min-width: 320px;">
+    <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🎉</span>
+            <span id="notificationText" class="font-medium">注册成功！</span>
+        </div>
+        <a href="profile.html" class="text-primary bg-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-gray-100 transition">去完善</a>
+    </div>
+</div>
+
 <!-- 导航栏 -->
 <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 py-4">
     <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
@@ -224,8 +235,8 @@
 
         <!-- 按钮组 -->
         <div class="flex items-center space-x-4">
-            <a href="#" class="hidden md:inline-block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-custom">登录</a>
-            <a href="#" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-custom">注册</a>
+            <a href="login.html" class="hidden md:inline-block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-custom">登录</a>
+            <a href="register.html" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-custom">注册</a>
 
             <!-- 移动端菜单按钮 -->
             <button id="menu-toggle" class="md:hidden text-dark hover:text-primary transition-custom">
@@ -244,7 +255,7 @@
             <a href="love/index.html" class="font-medium text-accent hover:text-primary py-2 transition-custom flex items-center">
                 <i class="fa fa-heart mr-2"></i>Love
             </a>
-            <a href="#" class="font-medium text-primary py-2 transition-custom">登录</a>
+            <a href="login.html" class="font-medium text-primary py-2 transition-custom">登录</a>
         </div>
     </div>
 </header>
@@ -398,7 +409,7 @@
             <!-- 潮流卡片网格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- 潮流卡片1 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate">
+                <a href="trend-detail.html" class="block bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=20" alt="街头时尚" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
                         <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
@@ -412,10 +423,10 @@
                 <span class="text-sm text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 2.4k 浏览
                 </span>
-                            <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
+                            <span class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></span>
                         </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- 潮流卡片2 -->
                 <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.1s;">
@@ -1274,6 +1285,40 @@
     };
 
     optimizeAnimations();
+
+    // 检查是否从注册页跳转过来
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const registered = urlParams.get('registered');
+        const tag = urlParams.get('tag');
+
+        if (registered === 'true' && tag) {
+            showRegisterNotification(tag);
+            
+            // 清除URL参数
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+
+    // 显示注册成功通知
+    function showRegisterNotification(tag) {
+        const notification = document.getElementById('registerNotification');
+        const notificationText = document.getElementById('notificationText');
+
+        notificationText.textContent = `注册成功！${tag} 已解锁，完善资料可自定义标签～`;
+        
+        // 显示通知
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.pointerEvents = 'all';
+        }, 500);
+
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.pointerEvents = 'none';
+        }, 3500);
+    }
 </script>
 </body>
 </html>

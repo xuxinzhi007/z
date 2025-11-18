@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>登录 - Z+潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #ff9a9e 50%, #fad0c4 75%, #ffecd2 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 20s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* 登录容器 */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo */
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+            animation: logoPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 输入框样式 */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            padding-right: 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .input-field:focus {
+            border: 2px solid transparent;
+            background: white;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+            background-image: linear-gradient(white, white),
+                            linear-gradient(135deg, #FF6B35, #40BFFF);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .input-field.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        /* 输入框图标 */
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .input-icon:hover {
+            color: #FF6B35;
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .input-icon.eye {
+            animation: blink 3s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0.3; }
+        }
+
+        /* 错误提示 */
+        .error-message {
+            display: none;
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 6px;
+            padding-left: 4px;
+            animation: fadeInDown 0.3s;
+        }
+
+        .error-message.show {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 登录按钮 */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #FF6B35, #40BFFF);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5); }
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .login-btn.success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            animation: successPulse 0.6s;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 加载动画 - 跳动圆点 */
+        .loading-dots {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .loading-dots.show {
+            display: flex;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: dotBounce 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) {
+            background: #FF6B35;
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            background: #40BFFF;
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            background: #FF7DAB;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* 记住我开关 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* 忘记密码链接 */
+        .forgot-link {
+            color: #FF6B35;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            color: #FF7DAB;
+            text-decoration: underline;
+        }
+
+        /* 气泡通知 */
+        .bubble-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bubble-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 忘记密码弹窗 */
+        .forgot-modal {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            z-index: 2000;
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .forgot-modal.show {
+            bottom: 0;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1999;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B35, #40BFFF, #FF7DAB);
+            background-size: 200% 100%;
+            animation: progressGradient 2s linear infinite;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        @keyframes progressGradient {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+
+        /* 步骤完成气泡 */
+        .step-bubble {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 20px 32px;
+            border-radius: 50px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .step-bubble.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 密码强度指示器 */
+        .password-strength {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            transition: background 0.3s;
+        }
+
+        .strength-bar.active.weak {
+            background: #ef4444;
+        }
+
+        .strength-bar.active.medium {
+            background: #f59e0b;
+        }
+
+        .strength-bar.active.strong {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+<!-- 返回按钮 -->
+<button class="back-btn" onclick="goBack()">
+    <i class="fa fa-arrow-left"></i>
+</button>
+
+<!-- 气泡通知 -->
+<div class="bubble-notification" id="bubbleNotification">
+    <span style="font-size: 24px;">✅</span>
+    <span id="notificationText">登录成功，潮人已上线～</span>
+</div>
+
+<!-- 登录容器 -->
+<div class="login-container">
+    <!-- Logo -->
+    <div class="logo">Z</div>
+
+    <!-- 标题 -->
+    <h1 class="text-2xl font-bold text-center mb-2" style="color: #1E293B;">欢迎回来！</h1>
+    <p class="text-center text-gray-500 mb-8">继续你的潮流之旅～</p>
+
+    <!-- 登录表单 -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <!-- 账号输入框 -->
+        <div class="input-group">
+            <input
+                type="text"
+                id="username"
+                class="input-field"
+                placeholder="输入你的专属潮号～"
+                autocomplete="username"
+            >
+            <i class="fa fa-user input-icon"></i>
+            <div class="error-message" id="usernameError">
+                <span>❌</span>
+                <span>潮号不能为空哦～</span>
+            </div>
+        </div>
+
+        <!-- 密码输入框 -->
+        <div class="input-group">
+            <input
+                type="password"
+                id="password"
+                class="input-field"
+                placeholder="输入你的密码"
+                autocomplete="current-password"
+            >
+            <i class="fa fa-eye-slash input-icon eye" id="passwordToggle" onclick="togglePassword()"></i>
+            <div class="error-message" id="passwordError">
+                <span>❌</span>
+                <span>潮号或密码不对哦，再检查下～</span>
+            </div>
+        </div>
+
+        <!-- 记住我 & 忘记密码 -->
+        <div class="flex items-center justify-between mb-6">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <label class="switch">
+                    <input type="checkbox" id="rememberMe">
+                    <span class="slider"></span>
+                </label>
+                <span class="text-sm text-gray-600">记住我</span>
+            </label>
+            <a class="forgot-link" onclick="showForgotModal()">忘记密码？</a>
+        </div>
+
+        <!-- 登录按钮 -->
+        <button type="submit" class="login-btn" id="loginBtn">
+            <span id="btnText">开始潮流</span>
+            <div class="loading-dots" id="loadingDots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </button>
+    </form>
+
+    <!-- 其他登录方式 -->
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-500 mb-4">或使用以下方式登录</p>
+        <div class="flex gap-3 justify-center">
+            <button class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition" onclick="socialLogin('wechat')">
+                <i class="fa fa-wechat text-xl" style="color: #07C160;"></i>
+            </button>
+            <button class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition" onclick="socialLogin('qq')">
+                <i class="fa fa-qq text-xl" style="color: #12B7F5;"></i>
+            </button>
+            <button class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition" onclick="socialLogin('weibo')">
+                <i class="fa fa-weibo text-xl" style="color: #E6162D;"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 注册链接 -->
+    <div class="mt-6 text-center">
+        <span class="text-sm text-gray-500">还没有账号？</span>
+        <a href="register.html" class="text-sm font-medium ml-1" style="color: #FF6B35;">立即注册</a>
+    </div>
+</div>
+
+<!-- 忘记密码弹窗 -->
+<div class="modal-overlay" id="modalOverlay" onclick="hideForgotModal()"></div>
+<div class="forgot-modal" id="forgotModal">
+    <!-- 进度条 -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- 关闭按钮 -->
+    <button onclick="hideForgotModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+        <i class="fa fa-times"></i>
+    </button>
+
+    <!-- 标题 -->
+    <h2 class="text-xl font-bold mb-2" style="color: #1E293B;">找回密码</h2>
+    <p class="text-sm text-gray-500 mb-6">别担心，让我们帮你找回～</p>
+
+    <!-- 步骤1：输入用户名 -->
+    <div id="step1" class="step-content">
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">输入你的潮号</label>
+            <input
+                type="text"
+                id="forgotUsername"
+                class="input-field"
+                placeholder="你注册时的用户名"
+                oninput="checkUsername()"
+            >
+            <div class="error-message" id="forgotUsernameError">
+                <span>❌</span>
+                <span>找不到这个潮号哦～</span>
+            </div>
+            <div class="text-sm mt-2" style="color: #10b981; display: none;" id="usernameFound">
+                <span>✅</span>
+                <span>已找到你的潮号～</span>
+            </div>
+        </div>
+        <button onclick="nextStep(2)" class="login-btn mt-6" id="step1Btn" disabled>
+            下一步
+        </button>
+    </div>
+
+    <!-- 步骤2：安全问题 -->
+    <div id="step2" class="step-content" style="display: none;">
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">安全问题</label>
+            <p class="text-sm text-gray-600 mb-4" id="securityQuestion">你最喜欢的潮流风格？</p>
+            <input
+                type="text"
+                id="securityAnswer"
+                class="input-field"
+                placeholder="输入你的答案"
+                oninput="checkAnswer()"
+            >
+            <div class="error-message" id="answerError">
+                <span>❌</span>
+                <span>方向对啦，再回忆下～</span>
+            </div>
+            <div class="text-sm mt-2" style="color: #10b981; display: none;" id="answerCorrect">
+                <span>✅</span>
+                <span>答案正确！</span>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="prevStep(1)" class="flex-1 py-3 rounded-full bg-gray-100 font-medium hover:bg-gray-200 transition">
+                上一步
+            </button>
+            <button onclick="nextStep(3)" class="flex-1 login-btn" id="step2Btn" disabled>
+                下一步
+            </button>
+        </div>
+    </div>
+
+    <!-- 步骤3：重置密码 -->
+    <div id="step3" class="step-content" style="display: none;">
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">设置新密码</label>
+            <input
+                type="password"
+                id="newPassword"
+                class="input-field"
+                placeholder="至少8位，包含字母和数字"
+                oninput="checkPasswordStrength()"
+            >
+            <i class="fa fa-eye-slash input-icon" onclick="toggleNewPassword()"></i>
+            <div class="password-strength">
+                <div class="strength-bar" id="bar1"></div>
+                <div class="strength-bar" id="bar2"></div>
+                <div class="strength-bar" id="bar3"></div>
+                <div class="strength-bar" id="bar4"></div>
+            </div>
+            <p class="text-xs mt-2 text-gray-500" id="strengthText">请输入密码</p>
+        </div>
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">确认新密码</label>
+            <input
+                type="password"
+                id="confirmPassword"
+                class="input-field"
+                placeholder="再输入一次新密码"
+                oninput="checkPasswordMatch()"
+            >
+            <div class="error-message" id="confirmError">
+                <span>❌</span>
+                <span>两次密码不一致哦～</span>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="prevStep(2)" class="flex-1 py-3 rounded-full bg-gray-100 font-medium hover:bg-gray-200 transition">
+                上一步
+            </button>
+            <button onclick="resetPassword()" class="flex-1 login-btn" id="step3Btn" disabled>
+                完成重置
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 步骤完成气泡 -->
+<div class="step-bubble" id="stepBubble">
+    <span>✅ 搞定！</span>
+</div>
+
+<script>
+    // 返回功能
+    function goBack() {
+        window.location.href = 'index.html';
+    }
+
+    // 密码显示/隐藏切换
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('passwordToggle');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        }
+
+        // 眨眼动画
+        toggleIcon.style.animation = 'none';
+        setTimeout(() => {
+            toggleIcon.style.animation = 'blink 3s ease-in-out infinite';
+        }, 10);
+    }
+
+    // 登录表单提交
+    function handleLogin(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const loadingDots = document.getElementById('loadingDots');
+
+        // 重置错误状态
+        document.getElementById('username').classList.remove('error');
+        document.getElementById('password').classList.remove('error');
+        usernameError.classList.remove('show');
+        passwordError.classList.remove('show');
+
+        // 验证
+        let hasError = false;
+        if (!username) {
+            document.getElementById('username').classList.add('error');
+            usernameError.classList.add('show');
+            hasError = true;
+        }
+        if (!password) {
+            document.getElementById('password').classList.add('error');
+            passwordError.querySelector('span:last-child').textContent = '密码不能为空哦～';
+            passwordError.classList.add('show');
+            hasError = true;
+        }
+
+        if (hasError) {
+            // 震动反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+            return;
+        }
+
+        // 模拟登录
+        loginBtn.classList.add('loading');
+        btnText.style.display = 'none';
+        loadingDots.classList.add('show');
+
+        setTimeout(() => {
+            // 模拟验证失败（演示用）
+            const isSuccess = Math.random() > 0.3; // 70%成功率
+
+            if (isSuccess) {
+                // 登录成功
+                loginBtn.classList.remove('loading');
+                loginBtn.classList.add('success');
+                btnText.textContent = '登录成功！';
+                btnText.style.display = 'block';
+                loadingDots.classList.remove('show');
+
+                // 显示气泡通知
+                showNotification('✅', '登录成功，潮人已上线～');
+
+                // 跳转到首页
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                // 登录失败
+                loginBtn.classList.remove('loading');
+                btnText.style.display = 'block';
+                loadingDots.classList.remove('show');
+
+                document.getElementById('password').classList.add('error');
+                passwordError.classList.add('show');
+
+                // 震动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([50, 100, 50]);
+                }
+            }
+        }, 1500);
+    }
+
+    // 显示气泡通知
+    function showNotification(icon, text) {
+        const notification = document.getElementById('bubbleNotification');
+        const notificationText = document.getElementById('notificationText');
+
+        notification.querySelector('span:first-child').textContent = icon;
+        notificationText.textContent = text;
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // 社交登录
+    function socialLogin(platform) {
+        const platformNames = {
+            'wechat': '微信',
+            'qq': 'QQ',
+            'weibo': '微博'
+        };
+        showNotification('🔔', `${platformNames[platform]}登录功能开发中...`);
+    }
+
+    // 显示忘记密码弹窗
+    function showForgotModal() {
+        document.getElementById('modalOverlay').classList.add('show');
+        document.getElementById('forgotModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        updateProgress(33);
+    }
+
+    // 隐藏忘记密码弹窗
+    function hideForgotModal() {
+        document.getElementById('modalOverlay').classList.remove('show');
+        document.getElementById('forgotModal').classList.remove('show');
+        document.body.style.overflow = 'auto';
+
+        // 重置表单
+        resetForgotForm();
+    }
+
+    // 重置忘记密码表单
+    function resetForgotForm() {
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('forgotUsername').value = '';
+        document.getElementById('securityAnswer').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        updateProgress(33);
+    }
+
+    // 更新进度条
+    function updateProgress(percent) {
+        document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    // 检查用户名
+    function checkUsername() {
+        const username = document.getElementById('forgotUsername').value.trim();
+        const btn = document.getElementById('step1Btn');
+        const found = document.getElementById('usernameFound');
+        const error = document.getElementById('forgotUsernameError');
+
+        if (username.length >= 3) {
+            // 模拟检查（演示用）
+            setTimeout(() => {
+                const exists = Math.random() > 0.3; // 70%存在
+
+                if (exists) {
+                    found.style.display = 'block';
+                    error.classList.remove('show');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else {
+                    found.style.display = 'none';
+                    error.classList.add('show');
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                }
+            }, 500);
+        } else {
+            found.style.display = 'none';
+            error.classList.remove('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+    }
+
+    // 检查安全问题答案
+    function checkAnswer() {
+        const answer = document.getElementById('securityAnswer').value.trim();
+        const btn = document.getElementById('step2Btn');
+        const correct = document.getElementById('answerCorrect');
+        const error = document.getElementById('answerError');
+
+        if (answer.length >= 2) {
+            // 模拟模糊匹配（演示用）
+            setTimeout(() => {
+                const isCorrect = answer.toLowerCase().includes('街头') ||
+                                 answer.toLowerCase().includes('复古') ||
+                                 answer.toLowerCase().includes('y2k');
+
+                if (isCorrect) {
+                    correct.style.display = 'block';
+                    error.classList.remove('show');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else {
+                    correct.style.display = 'none';
+                    error.classList.add('show');
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                }
+            }, 300);
+        } else {
+            correct.style.display = 'none';
+            error.classList.remove('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+    }
+
+    // 下一步
+    function nextStep(step) {
+        // 显示完成气泡
+        showStepBubble();
+
+        // 隐藏当前步骤
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('step' + i).style.display = 'none';
+        }
+
+        // 显示下一步
+        setTimeout(() => {
+            document.getElementById('step' + step).style.display = 'block';
+            updateProgress(step * 33);
+        }, 600);
+    }
+
+    // 上一步
+    function prevStep(step) {
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('step' + i).style.display = 'none';
+        }
+        document.getElementById('step' + step).style.display = 'block';
+        updateProgress(step * 33);
+    }
+
+    // 显示步骤完成气泡
+    function showStepBubble() {
+        const bubble = document.getElementById('stepBubble');
+        bubble.classList.add('show');
+
+        setTimeout(() => {
+            bubble.classList.remove('show');
+        }, 1000);
+    }
+
+    // 切换新密码显示
+    function toggleNewPassword() {
+        const input = document.getElementById('newPassword');
+        const icon = event.target;
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    }
+
+    // 检查密码强度
+    function checkPasswordStrength() {
+        const password = document.getElementById('newPassword').value;
+        const bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        const strengthText = document.getElementById('strengthText');
+
+        // 重置
+        bars.forEach(bar => {
+            document.getElementById(bar).classList.remove('active', 'weak', 'medium', 'strong');
+        });
+
+        if (password.length === 0) {
+            strengthText.textContent = '请输入密码';
+            strengthText.style.color = '#94a3b8';
+            return;
+        }
+
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        let level, levelText, color;
+        if (strength <= 2) {
+            level = 'weak';
+            levelText = '密码强度：弱';
+            color = '#ef4444';
+            bars.slice(0, 1).forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        } else if (strength <= 3) {
+            level = 'medium';
+            levelText = '密码强度：中等';
+            color = '#f59e0b';
+            bars.slice(0, 3).forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        } else {
+            level = 'strong';
+            levelText = '密码强度：强';
+            color = '#10b981';
+            bars.forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        }
+
+        strengthText.textContent = levelText;
+        strengthText.style.color = color;
+
+        checkPasswordMatch();
+    }
+
+    // 检查密码匹配
+    function checkPasswordMatch() {
+        const password = document.getElementById('newPassword').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        const btn = document.getElementById('step3Btn');
+        const error = document.getElementById('confirmError');
+
+        if (confirm.length === 0) {
+            error.classList.remove('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            return;
+        }
+
+        if (password === confirm && password.length >= 8) {
+            error.classList.remove('show');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        } else {
+            error.classList.add('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+    }
+
+    // 重置密码
+    function resetPassword() {
+        showStepBubble();
+
+        setTimeout(() => {
+            updateProgress(100);
+            showNotification('🎉', '密码重置成功！正在返回登录...');
+
+            setTimeout(() => {
+                hideForgotModal();
+            }, 2000);
+        }, 600);
+    }
+</script>
+</body>
+</html>
