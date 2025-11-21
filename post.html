@@ -67,19 +67,26 @@
 
         /* 发布按钮 */
         .publish-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #FF6B35, #40BFFF);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 100 !important;
+            padding: 10px 24px !important;
+            background: linear-gradient(135deg, #FF6B35, #40BFFF) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 25px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+            width: auto !important;
+            height: auto !important;
+            display: inline-block !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            bottom: auto !important;
         }
 
         .publish-btn:hover:not(:disabled) {
@@ -92,11 +99,34 @@
             cursor: not-allowed;
         }
 
+        /* 移动端发布按钮 */
+        @media (max-width: 768px) {
+            .publish-btn {
+                position: fixed !important;
+                top: 20px !important;
+                right: 20px !important;
+                width: auto !important;
+                padding: 8px 16px !important;
+                font-size: 14px;
+                border-radius: 12px;
+                margin-top: 12px;
+                z-index: auto;
+            }
+        }
+
         /* 编辑区 */
         .editor-container {
             max-width: 600px;
             margin: 80px auto 20px;
             padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                max-width: 100%;
+                margin: 60px 0 20px;
+                padding: 12px;
+            }
         }
 
         /* 用户信息卡片 */
@@ -109,6 +139,13 @@
             align-items: center;
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .user-card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
         }
 
         .user-avatar {
@@ -139,6 +176,13 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
+        @media (max-width: 768px) {
+            .content-input {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+        }
+
         .content-textarea {
             width: 100%;
             min-height: 120px;
@@ -150,6 +194,13 @@
             resize: vertical;
             outline: none;
             transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .content-textarea {
+                min-height: 100px;
+                font-size: 14px;
+            }
         }
 
         .content-textarea:focus {
@@ -183,6 +234,13 @@
             padding: 16px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .image-upload {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
         }
 
         .upload-area {
@@ -276,6 +334,13 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
+        @media (max-width: 768px) {
+            .tags-input {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+        }
+
         .tags-label {
             display: block;
             font-weight: 600;
@@ -346,6 +411,14 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
+        @media (max-width: 768px) {
+            .info-box {
+                padding: 12px;
+                margin-bottom: 12px;
+                font-size: 13px;
+            }
+        }
+
         .info-box i {
             color: #40BFFF;
             margin-right: 8px;
@@ -399,6 +472,147 @@
         .success-notification i {
             color: #10b981;
             font-size: 20px;
+        }
+
+        /* 发布页 Tab 样式 */
+        .post-tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .post-tab-btn.active {
+            color: #FF6B35;
+            border-bottom-color: #FF6B35;
+        }
+
+        .post-tab-btn i {
+            font-size: 18px;
+        }
+
+        /* 移动端 Tab 内容 */
+        @media (max-width: 768px) {
+            .post-tab-content {
+                display: none;
+            }
+
+            .post-tab-content.active {
+                display: block;
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
+
+        /* 桌面端显示所有内容 */
+        @media (min-width: 769px) {
+            .post-tab-content {
+                display: block !important;
+            }
+
+            #postTabsContainer {
+                display: none !important;
+            }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .editor-container {
+                max-width: 100%;
+                margin: 60px auto 80px;
+                padding: 12px;
+            }
+
+            .user-card {
+                margin-bottom: 12px;
+            }
+
+            .content-textarea {
+                min-height: 100px;
+            }
+
+            .publish-btn {
+                position: fixed;
+                bottom: 70px;
+                right: 12px;
+                left: 12px;
+                width: auto;
+            }
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            display: flex !important;
+            justify-content: space-around !important;
+            background: white !important;
+            border-top: 1px solid #e2e8f0 !important;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05) !important;
+            z-index: 100 !important;
+        }
+
+        .nav-item {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            padding: 8px 0 !important;
+            color: #64748b !important;
+            text-decoration: none !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s !important;
+        }
+
+        .nav-item.active {
+            color: #FF6B35 !important;
+        }
+
+        .nav-item i {
+            font-size: 24px !important;
+        }
+
+        /* 为底部导航预留空间 */
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 60px !important;
+            }
+        }
+
+        /* 桌面端隐藏底部导航 */
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none !important;
+            }
+
+            body {
+                padding-bottom: 0 !important;
+            }
         }
     </style>
 </head>
@@ -454,7 +668,7 @@
     </div>
 
     <!-- 标签输入 -->
-    <div class="tags-input">
+    <div class="tags-input post-tab-content" id="tags">
         <label class="tags-label">添加标签（最多3个）</label>
         <input 
             type="text" 
@@ -724,6 +938,63 @@
         document.getElementById('imageInput').files = files;
         handleImageSelect({ target: { files: files } });
     });
+
+    // ========== 移动端 Tab 切换 ==========
+    function switchPostTab(tabName, button) {
+        // 隐藏所有 Tab 内容
+        document.querySelectorAll('.post-tab-content').forEach(el => {
+            el.classList.remove('active');
+        });
+
+        // 移除所有 Tab 按钮的 active 类
+        document.querySelectorAll('.post-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // 显示选中的 Tab 内容
+        const tabElement = document.getElementById(tabName);
+        if (tabElement) {
+            tabElement.classList.add('active');
+        }
+
+        // 激活按钮
+        button.classList.add('active');
+    }
+
+    // 页面加载时更新导航
+    window.addEventListener('DOMContentLoaded', () => {
+        updateActiveNav();
+    });
+
+    // 自动激活当前页面的导航项
+    function updateActiveNav() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const href = item.getAttribute('href');
+            if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
 </script>
+
+<!-- 底部导航 -->
+<nav class="bottom-nav md:hidden">
+    <a href="index.html" class="nav-item" data-page="home">
+        <i class="fa fa-home"></i>
+        <span>首页</span>
+    </a>
+    <a href="post.html" class="nav-item active" data-page="post">
+        <i class="fa fa-plus-circle"></i>
+        <span>发布</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="profile">
+        <i class="fa fa-user"></i>
+        <span>我的</span>
+    </a>
+</nav>
 </body>
 </html>
