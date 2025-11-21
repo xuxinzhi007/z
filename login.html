@@ -613,8 +613,15 @@
     </button>
 
     <!-- 标题 -->
-    <h2 class="text-xl font-bold mb-2" style="color: #1E293B;">找回密码</h2>
-    <p class="text-sm text-gray-500 mb-6">别担心，让我们帮你找回～</p>
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-xl font-bold mb-2" style="color: #1E293B;">找回密码</h2>
+            <p class="text-sm text-gray-500">别担心，让我们帮你找回～</p>
+        </div>
+        <button onclick="showDebugInfo()" class="px-3 py-1 rounded-full bg-gray-100 text-xs font-medium hover:bg-gray-200 transition" title="调试按钮">
+            🔧 调试
+        </button>
+    </div>
 
     <!-- 步骤1：输入用户名 -->
     <div id="step1" class="step-content">
@@ -714,6 +721,83 @@
                 完成重置
             </button>
         </div>
+        <div class="text-center mt-4">
+            <p class="text-xs text-gray-500 mb-2">还是想不起来？</p>
+            <button onclick="nextStep(4)" class="text-xs text-red-600 hover:text-red-700 font-medium">
+                重置账号数据 →
+            </button>
+        </div>
+    </div>
+
+    <!-- 步骤4：重置账号（兜底方案） -->
+    <div id="step4" class="step-content" style="display: none;">
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+            <p class="text-sm text-red-700 font-medium mb-2">⚠️ 重置账号数据</p>
+            <p class="text-xs text-red-600">此操作将清除该账号的所有数据（包括发布的动态），请谨慎操作！</p>
+        </div>
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">设置新密码</label>
+            <input
+                type="password"
+                id="resetNewPassword"
+                class="input-field"
+                placeholder="至少8位，包含字母和数字"
+                oninput="checkResetPasswordStrength()"
+            >
+            <i class="fa fa-eye-slash input-icon" onclick="toggleResetPassword()"></i>
+            <div class="password-strength">
+                <div class="strength-bar" id="resetBar1"></div>
+                <div class="strength-bar" id="resetBar2"></div>
+                <div class="strength-bar" id="resetBar3"></div>
+                <div class="strength-bar" id="resetBar4"></div>
+            </div>
+            <p class="text-xs mt-2 text-gray-500" id="resetStrengthText">请输入密码</p>
+        </div>
+        <div class="input-group">
+            <label class="block text-sm font-medium mb-2" style="color: #1E293B;">确认新密码</label>
+            <input
+                type="password"
+                id="resetConfirmPassword"
+                class="input-field"
+                placeholder="再输入一次新密码"
+                oninput="checkResetPasswordMatch()"
+            >
+            <div class="error-message" id="resetConfirmError">
+                <span>❌</span>
+                <span>两次密码不一致哦～</span>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="prevStep(1)" class="flex-1 py-3 rounded-full bg-gray-100 font-medium hover:bg-gray-200 transition">
+                返回
+            </button>
+            <button onclick="resetAccountData()" class="flex-1 login-btn" id="step4Btn" disabled style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                确认重置
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 调试信息弹窗 -->
+<div class="modal-overlay" id="debugOverlay" onclick="hideDebugInfo()"></div>
+<div class="forgot-modal" id="debugModal" style="max-height: 80vh; overflow-y: auto;">
+    <button onclick="hideDebugInfo()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition">
+        <i class="fa fa-times"></i>
+    </button>
+
+    <h2 class="text-xl font-bold mb-4" style="color: #1E293B;">🔧 调试信息</h2>
+    
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+        <h3 class="font-bold text-sm mb-3" style="color: #1E293B;">所有注册账号</h3>
+        <div id="debugUsersList" class="space-y-3 max-h-96 overflow-y-auto">
+            <p class="text-sm text-gray-500">加载中...</p>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button onclick="hideDebugInfo()" class="px-6 py-2 rounded-full bg-gray-100 font-medium hover:bg-gray-200 transition">
+            关闭
+        </button>
     </div>
 </div>
 
@@ -1101,6 +1185,259 @@
             }, 2000);
         }, 600);
     }
+
+    // ========== 调试功能 ==========
+
+    // 显示调试信息
+    function showDebugInfo() {
+        const debugOverlay = document.getElementById('debugOverlay');
+        const debugModal = document.getElementById('debugModal');
+        
+        debugOverlay.classList.add('show');
+        debugModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+
+        // 加载用户列表
+        loadDebugUsersList();
+    }
+
+    // 隐藏调试信息
+    function hideDebugInfo() {
+        const debugOverlay = document.getElementById('debugOverlay');
+        const debugModal = document.getElementById('debugModal');
+        
+        debugOverlay.classList.remove('show');
+        debugModal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    // 加载调试用户列表
+    function loadDebugUsersList() {
+        const users = JSON.parse(localStorage.getItem('z_users') || '{}');
+        const usersList = document.getElementById('debugUsersList');
+
+        if (Object.keys(users).length === 0) {
+            usersList.innerHTML = '<p class="text-sm text-gray-500">暂无账号</p>';
+            return;
+        }
+
+        usersList.innerHTML = Object.entries(users).map(([username, user]) => {
+            const decryptedPassword = atob(user.password);
+            return `
+                <div class="bg-white rounded-lg p-3 border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-sm">${username}</span>
+                        <button onclick="copyToClipboard('${username}')" class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition">
+                            复制用户名
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-600 space-y-1">
+                        <div><strong>密码：</strong> <code class="bg-gray-100 px-2 py-1 rounded">${decryptedPassword}</code>
+                            <button onclick="copyToClipboard('${decryptedPassword}')" class="ml-2 text-blue-600 hover:text-blue-800">📋</button>
+                        </div>
+                        <div><strong>标签：</strong> ${user.tags.join(', ')}</div>
+                        <div><strong>签名：</strong> ${user.signature}</div>
+                        <div><strong>注册时间：</strong> ${new Date(user.createTime).toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 复制到剪贴板
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('已复制到剪贴板！');
+        });
+    }
+
+    // ========== 账号重置功能 ==========
+
+    // 显示重置账号选项
+    function showResetAccountOption() {
+        // 隐藏前面的步骤
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('step' + i).style.display = 'none';
+        }
+        document.getElementById('step4').style.display = 'block';
+        updateProgress(100);
+    }
+
+    // 检查重置密码强度
+    function checkResetPasswordStrength() {
+        const password = document.getElementById('resetNewPassword').value;
+        const bars = ['resetBar1', 'resetBar2', 'resetBar3', 'resetBar4'];
+        const strengthText = document.getElementById('resetStrengthText');
+
+        bars.forEach(bar => {
+            document.getElementById(bar).classList.remove('active', 'weak', 'medium', 'strong');
+        });
+
+        if (password.length === 0) {
+            strengthText.textContent = '请输入密码';
+            strengthText.style.color = '#94a3b8';
+            return;
+        }
+
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        let level, levelText, color;
+        if (strength <= 2) {
+            level = 'weak';
+            levelText = '密码强度：弱';
+            color = '#ef4444';
+            bars.slice(0, 1).forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        } else if (strength <= 3) {
+            level = 'medium';
+            levelText = '密码强度：中等';
+            color = '#f59e0b';
+            bars.slice(0, 3).forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        } else {
+            level = 'strong';
+            levelText = '密码强度：强';
+            color = '#10b981';
+            bars.forEach(bar => {
+                document.getElementById(bar).classList.add('active', level);
+            });
+        }
+
+        strengthText.textContent = levelText;
+        strengthText.style.color = color;
+
+        checkResetPasswordMatch();
+    }
+
+    // 检查重置密码匹配
+    function checkResetPasswordMatch() {
+        const password = document.getElementById('resetNewPassword').value;
+        const confirm = document.getElementById('resetConfirmPassword').value;
+        const btn = document.getElementById('step4Btn');
+        const error = document.getElementById('resetConfirmError');
+
+        if (confirm.length === 0) {
+            error.classList.remove('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            return;
+        }
+
+        if (password === confirm && password.length >= 8) {
+            error.classList.remove('show');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        } else {
+            error.classList.add('show');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+    }
+
+    // 切换重置密码显示
+    function toggleResetPassword() {
+        const input = document.getElementById('resetNewPassword');
+        const icon = event.target;
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    }
+
+    // 重置账号数据
+    function resetAccountData() {
+        const username = document.getElementById('forgotUsername').value.trim();
+        const newPassword = document.getElementById('resetNewPassword').value;
+        const confirmPassword = document.getElementById('resetConfirmPassword').value;
+
+        // 验证
+        if (!username) {
+            alert('请输入用户名');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert('两次密码不一致');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            alert('密码长度至少8位');
+            return;
+        }
+
+        // 确认操作
+        if (!confirm('⚠️ 确定要重置该账号吗？此操作将清除所有数据（包括发布的动态），无法撤销！')) {
+            return;
+        }
+
+        // 获取用户数据
+        const users = JSON.parse(localStorage.getItem('z_users') || '{}');
+        
+        if (!users[username]) {
+            alert('用户不存在');
+            return;
+        }
+
+        // 重置账号数据
+        users[username] = {
+            username: username,
+            password: btoa(newPassword),
+            avatar: `https://picsum.photos/200/200?random=${Date.now()}`,
+            tags: ['潮流新星'],
+            signature: '分享我的潮流日常～',
+            cover: `https://picsum.photos/800/300?random=${Date.now()}`,
+            points: 0,
+            createTime: new Date().toISOString(),
+            updateTime: new Date().toISOString()
+        };
+
+        // 删除该用户的所有动态
+        const allPosts = JSON.parse(localStorage.getItem('allPosts') || '[]');
+        const filteredPosts = allPosts.filter(post => post.username !== username);
+        localStorage.setItem('allPosts', JSON.stringify(filteredPosts));
+
+        // 保存用户数据
+        localStorage.setItem('z_users', JSON.stringify(users));
+
+        // 显示成功提示
+        showStepBubble();
+        showNotification('✅', '账号重置成功！请用新密码登录');
+
+        setTimeout(() => {
+            hideForgotModal();
+            // 清空登录表单
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }, 2000);
+    }
+
+    // 在 nextStep 函数中添加重置账号选项
+    // 修改 nextStep 函数以支持步骤4
+    const originalNextStep = window.nextStep;
+    window.nextStep = function(step) {
+        if (step === 4) {
+            showResetAccountOption();
+        } else {
+            originalNextStep(step);
+        }
+    };
+
+    // 在忘记密码弹窗中添加"无法找回？"链接
+    // 这个会在 step3 中显示
 </script>
 </body>
 </html>

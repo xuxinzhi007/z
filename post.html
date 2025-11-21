@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>发布动态 - Z+潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
+    <!-- 引入动态管理模块 -->
+    <script src="js/postsManager.js"></script>
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f8fafc;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 发布按钮 */
+        .publish-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #FF6B35, #40BFFF);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .publish-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .publish-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 编辑区 */
+        .editor-container {
+            max-width: 600px;
+            margin: 80px auto 20px;
+            padding: 20px;
+        }
+
+        /* 用户信息卡片 */
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info h3 {
+            font-weight: 600;
+            margin: 0;
+            color: #1E293B;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 4px 0 0;
+        }
+
+        /* 内容输入框 */
+        .content-input {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .content-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .content-textarea:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .content-textarea::placeholder {
+            color: #cbd5e1;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .char-count.warning {
+            color: #f59e0b;
+        }
+
+        .char-count.error {
+            color: #ef4444;
+        }
+
+        /* 图片上传区 */
+        .image-upload {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .upload-hint {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        /* 图片预览 */
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #f1f5f9;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .preview-remove:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* 标签输入 */
+        .tags-input {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .tags-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1E293B;
+        }
+
+        .tag-input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .tag-input-field:focus {
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .tag-input-field::placeholder {
+            color: #cbd5e1;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .tag-remove:hover {
+            opacity: 0.8;
+        }
+
+        /* 提示信息 */
+        .info-box {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid #40BFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-box i {
+            color: #40BFFF;
+            margin-right: 8px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* 加载动画 */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 成功提示 */
+        .success-notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .success-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .success-notification i {
+            color: #10b981;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+<!-- 返回按钮 -->
+<button class="back-btn" onclick="goBack()">
+    <i class="fa fa-arrow-left"></i>
+</button>
+
+<!-- 发布按钮 -->
+<button class="publish-btn" id="publishBtn" onclick="publishPost()">
+    发布
+</button>
+
+<!-- 成功提示 -->
+<div class="success-notification" id="successNotification">
+    <i class="fa fa-check-circle"></i>
+    <span>发布成功！</span>
+</div>
+
+<!-- 编辑区 -->
+<div class="editor-container">
+    <!-- 用户信息 -->
+    <div class="user-card">
+        <img src="" alt="头像" class="user-avatar" id="userAvatar">
+        <div class="user-info">
+            <h3 id="userName">加载中...</h3>
+            <p id="userTag">潮流新星</p>
+        </div>
+    </div>
+
+    <!-- 内容输入 -->
+    <div class="content-input">
+        <textarea 
+            class="content-textarea" 
+            id="contentInput" 
+            placeholder="分享你的潮流想法～（最多500字）"
+            maxlength="500"
+            oninput="updateCharCount()"
+        ></textarea>
+        <div class="char-count" id="charCount">0/500</div>
+    </div>
+
+    <!-- 图片上传 -->
+    <div class="image-upload">
+        <div class="upload-area" id="uploadArea" onclick="triggerImageInput()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">点击或拖拽上传图片</div>
+            <div class="upload-hint">最多3张，支持JPG/PNG</div>
+        </div>
+        <input type="file" id="imageInput" multiple accept="image/*" onchange="handleImageSelect(event)">
+        <div class="image-preview" id="imagePreview"></div>
+    </div>
+
+    <!-- 标签输入 -->
+    <div class="tags-input">
+        <label class="tags-label">添加标签（最多3个）</label>
+        <input 
+            type="text" 
+            class="tag-input-field" 
+            id="tagInput" 
+            placeholder="输入标签后按Enter添加，如：#街头穿搭"
+            onkeypress="handleTagInput(event)"
+        >
+        <div class="tags-list" id="tagsList"></div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-box">
+        <i class="fa fa-lightbulb-o"></i>
+        <p>💡 分享优质内容可获得积分奖励，积分可用于兑换礼物～</p>
+    </div>
+</div>
+
+<script>
+    let selectedImages = [];
+    let selectedTags = [];
+
+    // 页面加载
+    window.addEventListener('DOMContentLoaded', () => {
+        // 检查登录状态
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 加载用户信息
+        loadUserInfo();
+    });
+
+    // 加载用户信息
+    function loadUserInfo() {
+        const user = UserManager.getCurrentUser();
+        if (!user) {
+            alert('获取用户信息失败');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        document.getElementById('userAvatar').src = user.avatar;
+        document.getElementById('userName').textContent = user.username;
+        document.getElementById('userTag').textContent = user.tags[0] || '潮流新星';
+    }
+
+    // 返回功能
+    function goBack() {
+        if (document.referrer) {
+            window.history.back();
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // 更新字数统计
+    function updateCharCount() {
+        const content = document.getElementById('contentInput').value;
+        const count = content.length;
+        const charCountEl = document.getElementById('charCount');
+        
+        charCountEl.textContent = `${count}/500`;
+        
+        if (count > 400) {
+            charCountEl.classList.add('warning');
+        } else {
+            charCountEl.classList.remove('warning');
+        }
+    }
+
+    // 触发图片输入
+    function triggerImageInput() {
+        document.getElementById('imageInput').click();
+    }
+
+    // 处理图片选择
+    function handleImageSelect(event) {
+        const files = Array.from(event.target.files);
+        
+        // 最多3张图片
+        if (selectedImages.length + files.length > 3) {
+            alert('最多只能上传3张图片～');
+            return;
+        }
+
+        // 读取图片并转换为base64
+        files.forEach(file => {
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件～');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImages.push({
+                    data: e.target.result,
+                    name: file.name
+                });
+                renderImagePreview();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 重置input
+        event.target.value = '';
+    }
+
+    // 渲染图片预览
+    function renderImagePreview() {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = selectedImages.map((img, index) => `
+            <div class="preview-item">
+                <img src="${img.data}" alt="预览${index + 1}">
+                <button class="preview-remove" onclick="removeImage(${index})">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // 移除图片
+    function removeImage(index) {
+        selectedImages.splice(index, 1);
+        renderImagePreview();
+    }
+
+    // 处理标签输入
+    function handleTagInput(event) {
+        if (event.key !== 'Enter') return;
+        
+        event.preventDefault();
+        const input = document.getElementById('tagInput');
+        let tag = input.value.trim();
+
+        if (!tag) return;
+
+        // 添加#前缀
+        if (!tag.startsWith('#')) {
+            tag = '#' + tag;
+        }
+
+        // 检查重复
+        if (selectedTags.includes(tag)) {
+            alert('这个标签已经添加过了～');
+            input.value = '';
+            return;
+        }
+
+        // 最多3个标签
+        if (selectedTags.length >= 3) {
+            alert('最多只能添加3个标签～');
+            return;
+        }
+
+        selectedTags.push(tag);
+        input.value = '';
+        renderTags();
+    }
+
+    // 渲染标签
+    function renderTags() {
+        const tagsList = document.getElementById('tagsList');
+        tagsList.innerHTML = selectedTags.map((tag, index) => `
+            <div class="tag-item">
+                <span>${tag}</span>
+                <button class="tag-remove" onclick="removeTag(${index})">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // 移除标签
+    function removeTag(index) {
+        selectedTags.splice(index, 1);
+        renderTags();
+    }
+
+    // 发布动态
+    function publishPost() {
+        const content = document.getElementById('contentInput').value.trim();
+        const publishBtn = document.getElementById('publishBtn');
+
+        // 验证内容
+        if (!content) {
+            alert('请输入动态内容～');
+            return;
+        }
+
+        if (content.length < 5) {
+            alert('内容至少需要5个字～');
+            return;
+        }
+
+        // 禁用按钮，显示加载状态
+        publishBtn.disabled = true;
+        publishBtn.innerHTML = '<span class="loading-spinner"></span>发布中...';
+
+        // 模拟网络延迟
+        setTimeout(() => {
+            // 调用PostsManager发布动态
+            const result = PostsManager.createPost({
+                content: content,
+                images: selectedImages.map(img => img.data),
+                tags: selectedTags
+            });
+
+            if (result.success) {
+                // 显示成功提示
+                showSuccessNotification();
+
+                // 重置表单
+                document.getElementById('contentInput').value = '';
+                document.getElementById('charCount').textContent = '0/500';
+                document.getElementById('tagInput').value = '';
+                selectedImages = [];
+                selectedTags = [];
+                renderImagePreview();
+                renderTags();
+
+                // 恢复按钮
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = '发布';
+
+                // 2秒后返回首页
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                alert(result.message);
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = '发布';
+            }
+        }, 1000);
+    }
+
+    // 显示成功提示
+    function showSuccessNotification() {
+        const notification = document.getElementById('successNotification');
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // 拖拽上传
+    const uploadArea = document.getElementById('uploadArea');
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        document.getElementById('imageInput').files = files;
+        handleImageSelect({ target: { files: files } });
+    });
+</script>
+</body>
+</html>
