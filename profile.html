@@ -436,16 +436,16 @@
 <div class="tabs-container mt-8">
     <div class="tabs">
         <div class="tab active" onclick="switchTab('trends')">
-            我的潮流 <span style="color: #FF6B35; font-size: 12px; margin-left: 4px;">42</span>
+            我的潮流 <span style="color: #FF6B35; font-size: 12px; margin-left: 4px;" id="trendsCount">0</span>
         </div>
         <div class="tab" onclick="switchTab('favorites')">
-            收藏 <span style="color: #FFD166; font-size: 12px; margin-left: 4px;">128</span>
+            收藏 <span style="color: #FFD166; font-size: 12px; margin-left: 4px;" id="favoritesCount">0</span>
         </div>
         <div class="tab" onclick="switchTab('groups')">
-            社群 <span style="color: #40BFFF; font-size: 12px; margin-left: 4px;">15</span>
+            社群 <span style="color: #40BFFF; font-size: 12px; margin-left: 4px;" id="groupsCount">0</span>
         </div>
         <div class="tab" onclick="switchTab('moments')">
-            动态 <span style="color: #FF7DAB; font-size: 12px; margin-left: 4px;">89</span>
+            动态 <span style="color: #FF7DAB; font-size: 12px; margin-left: 4px;" id="momentsCount">0</span>
         </div>
     </div>
 </div>
@@ -582,43 +582,11 @@
 
 <!-- 动态内容 -->
 <div class="tab-content" id="moments">
-    <div class="p-4 space-y-4">
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-3 mb-3">
-                <img src="https://picsum.photos/40/40?random=300" alt="头像" class="w-10 h-10 rounded-full">
-                <div class="flex-1">
-                    <h4 class="font-bold text-sm">潮流达人小王</h4>
-                    <p class="text-xs text-gray-500">2小时前</p>
-                </div>
-            </div>
-            <p class="text-sm mb-3">今天去了新开的街头潮店，发现了好多有意思的单品！分享给大家～ #潮流分享 #街头风格</p>
-            <div class="grid grid-cols-3 gap-2 mb-3">
-                <img src="https://picsum.photos/200/200?random=430" alt="动态图" class="rounded-lg">
-                <img src="https://picsum.photos/200/200?random=431" alt="动态图" class="rounded-lg">
-                <img src="https://picsum.photos/200/200?random=432" alt="动态图" class="rounded-lg">
-            </div>
-            <div class="flex items-center gap-6 text-sm text-gray-500">
-                <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>89</button>
-                <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>23</button>
-                <button class="hover:text-primary"><i class="fa fa-share-alt mr-1"></i>12</button>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-            <div class="flex items-center gap-3 mb-3">
-                <img src="https://picsum.photos/40/40?random=300" alt="头像" class="w-10 h-10 rounded-full">
-                <div class="flex-1">
-                    <h4 class="font-bold text-sm">潮流达人小王</h4>
-                    <p class="text-xs text-gray-500">1天前</p>
-                </div>
-            </div>
-            <p class="text-sm mb-3">今天的穿搭灵感来自90年代复古风～ 你们觉得怎么样？💫</p>
-            <img src="https://picsum.photos/600/400?random=433" alt="动态图" class="rounded-lg mb-3 w-full">
-            <div class="flex items-center gap-6 text-sm text-gray-500">
-                <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>156</button>
-                <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>45</button>
-                <button class="hover:text-primary"><i class="fa fa-share-alt mr-1"></i>18</button>
-            </div>
+    <div class="p-4 space-y-4" id="userPostsContainer">
+        <!-- 用户发布的动态将通过JavaScript动态生成 -->
+        <div class="text-center py-12 text-gray-500">
+            <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+            <p>还没有发布动态呢～</p>
         </div>
     </div>
 </div>
@@ -668,6 +636,9 @@
 
         // 加载用户信息
         loadUserProfile();
+        
+        // 加载用户动态
+        loadUserPosts();
     });
 
     // 加载用户资料
@@ -734,6 +705,113 @@
             if (result.success) {
                 alert('更新成功！');
                 loadUserProfile();
+            } else {
+                alert(result.message);
+            }
+        }
+    }
+
+    // 加载用户发布的动态
+    function loadUserPosts() {
+        const currentUsername = UserManager.getCurrentUsername();
+        const userPosts = PostsManager.getUserPosts(currentUsername);
+        const container = document.getElementById('userPostsContainer');
+
+        // 更新动态数量
+        document.getElementById('momentsCount').textContent = userPosts.length;
+
+        if (userPosts.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                    <p>还没有发布动态呢～</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = userPosts.map(post => `
+            <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${UserManager.getCurrentUser().avatar}" alt="头像" class="w-10 h-10 rounded-full">
+                        <div>
+                            <h4 class="font-bold text-sm">${post.username}</h4>
+                            <p class="text-xs text-gray-500">${post.createTime}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editPost(${post.id})" class="text-gray-400 hover:text-primary transition" title="编辑">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button onclick="deletePost(${post.id})" class="text-gray-400 hover:text-red-500 transition" title="删除">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                ${post.tags.length > 0 ? `
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        ${post.tags.map(tag => `
+                            <span class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">${tag}</span>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <p class="text-sm mb-3">${post.content}</p>
+                
+                ${post.images.length > 0 ? `
+                    <div class="grid gap-2 mb-3" style="grid-template-columns: repeat(${Math.min(post.images.length, 3)}, 1fr);">
+                        ${post.images.slice(0, 3).map(img => `
+                            <img src="${img}" alt="动态图" class="rounded-lg w-full h-40 object-cover">
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="flex items-center gap-6 text-sm text-gray-500">
+                    <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>${post.likes.length}</button>
+                    <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>${post.comments.length}</button>
+                    <button class="hover:text-primary"><i class="fa fa-star-o mr-1"></i>${post.collects.length}</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 编辑动态
+    function editPost(postId) {
+        const post = PostsManager.getPostById(postId);
+        if (!post) {
+            alert('动态不存在');
+            return;
+        }
+
+        const newContent = prompt('编辑动态内容:', post.content);
+        if (newContent !== null && newContent.trim() !== '') {
+            // 更新动态内容
+            post.content = newContent.trim();
+            const posts = JSON.parse(localStorage.getItem('allPosts') || '[]');
+            const index = posts.findIndex(p => p.id === postId);
+            if (index !== -1) {
+                posts[index] = post;
+                localStorage.setItem('allPosts', JSON.stringify(posts));
+                alert('编辑成功！');
+                loadUserPosts();
+            }
+        }
+    }
+
+    // 删除动态
+    function deletePost(postId) {
+        if (confirm('确定要删除这条动态吗？')) {
+            const result = PostsManager.deletePost(postId);
+            if (result.success) {
+                alert('删除成功！');
+                loadUserPosts();
+                
+                // 刷新首页的轮播（如果首页已加载）
+                if (window.refreshCarousel) {
+                    window.refreshCarousel();
+                }
             } else {
                 alert(result.message);
             }

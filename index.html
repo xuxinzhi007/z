@@ -68,6 +68,21 @@
                 mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
                 -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
             }
+            /* 轮播样式 */
+            .carousel-container {
+                overflow: hidden;
+                height: 100%;
+            }
+            .carousel-track {
+                display: flex;
+                height: 100%;
+                transition: transform 0.5s ease;
+            }
+            .carousel-slide {
+                flex-shrink: 0;
+                width: 100%;
+                height: 100%;
+            }
         }
     </style>
 
@@ -259,6 +274,25 @@
             animation: fadeIn 0.3s ease-out;
         }
 
+        /* 动态展示区在移动端默认显示 */
+        #posts {
+            display: block !important;
+        }
+
+        /* 移动端动态展示区添加顶部间距，避免与 Tab 重叠 */
+        @media (max-width: 768px) {
+            #posts {
+                padding-top: 80px !important;
+            }
+        }
+
+        /* 桌面端显示所有内容 */
+        @media (min-width: 769px) {
+            .mobile-tab-content {
+                display: block !important;
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -424,7 +458,7 @@
                         汇聚00后潮流文化、兴趣社交与创意表达，打造专属于年轻一代的数字社区
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-10">
-                        <a href="#trends" class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-center hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
+                        <a href="trends.html" class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-center hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
                             探索潮流
                         </a>
                         <a href="#community" class="px-8 py-3 rounded-full border-2 border-dark text-dark font-medium text-center hover:bg-dark hover:text-white transition-custom">
@@ -492,42 +526,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Love项目特色卡片 -->
-            <div class="mt-16 scroll-animate">
-                <a href="love/index.html" class="block group">
-                    <div class="bg-gradient-to-r from-accent/10 via-pink-50 to-accent/10 rounded-2xl p-8 shadow-lg card-hover border-2 border-accent/20 transition-all duration-500 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/20">
-                        <div class="flex flex-col md:flex-row items-center justify-between">
-                            <div class="flex items-center space-x-6 mb-6 md:mb-0">
-                                <div class="w-16 h-16 rounded-full bg-gradient-to-r from-accent to-pink-400 flex items-center justify-center text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300 animate-pulse-slow">
-                                    <i class="fa fa-heart"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-accent to-pink-500">
-                                        冬日暖心Love
-                                    </h3>
-                                    <p class="text-gray-600">感受冬日温暖的爱心弹窗，让你的心也暖起来</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3 text-accent group-hover:translate-x-2 transition-transform duration-300">
-                                <span class="font-medium">立即体验</span>
-                                <i class="fa fa-arrow-right text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-6 flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-white rounded-full text-sm text-gray-600 shadow-sm">
-                                <i class="fa fa-heart text-accent mr-1"></i>爱心特效
-                            </span>
-                            <span class="px-3 py-1 bg-white rounded-full text-sm text-gray-600 shadow-sm">
-                                <i class="fa fa-snowflake-o text-secondary mr-1"></i>冬日主题
-                            </span>
-                            <span class="px-3 py-1 bg-white rounded-full text-sm text-gray-600 shadow-sm">
-                                <i class="fa fa-magic text-yellow mr-1"></i>流畅动画
-                            </span>
-                        </div>
-                    </div>
-                </a>
             </div>
         </div>
 
@@ -882,41 +880,66 @@
     <section id="posts" class="mobile-tab-content py-20 bg-white">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
-            <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
+            <div class="text-center max-w-3xl mx-auto mb-8 scroll-animate">
                 <span class="inline-block px-4 py-1 rounded-full bg-yellow/20 text-yellow text-sm font-medium mb-4">
                     社区动态
                 </span>
                 <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
                     潮流<span class="text-primary">动态</span>实时更新
                 </h2>
-                <p class="text-gray-600 text-lg">
-                    看看大家在分享什么，发现更多有趣的潮流内容
-                </p>
             </div>
 
-            <!-- 发布按钮 -->
-            <div class="text-center mb-12 scroll-animate">
-                <a href="post.html" class="inline-flex items-center px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
-                    <i class="fa fa-plus mr-2"></i>
-                    分享你的潮流想法
-                </a>
-            </div>
+            <!-- 卡片轮播区域 -->
+            <div class="mb-12 scroll-animate">
+                <!-- 查看更多按钮 -->
+                <div class="text-center mb-6">
+                    <a href="posts-feed.html" class="inline-flex items-center px-6 py-2 rounded-full bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-custom">
+                        <i class="fa fa-list mr-2"></i>
+                        查看更多动态
+                    </a>
+                </div>
 
-            <!-- 动态列表 -->
-            <div class="max-w-2xl mx-auto space-y-6" id="postsList">
-                <!-- 动态卡片将通过JavaScript动态生成 -->
-                <div class="text-center py-12 text-gray-500">
-                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
-                    <p>暂无动态，快去分享你的潮流想法吧～</p>
+                <!-- 轮播容器 -->
+                <div class="relative max-w-2xl mx-auto">
+                    <!-- 卡片轮播 -->
+                    <div class="overflow-hidden rounded-2xl bg-white shadow-lg">
+                        <div class="carousel-container relative h-96" id="carouselContainer">
+                            <div class="carousel-track flex transition-transform duration-500" id="carouselTrack">
+                                <!-- 卡片将通过JavaScript动态生成 -->
+                                <div class="carousel-slide flex-shrink-0 w-full h-96 flex items-center justify-center bg-gray-50">
+                                    <div class="text-center text-gray-500">
+                                        <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                                        <p>暂无动态，快去分享你的潮流想法吧～</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 左右导航按钮 -->
+                            <button onclick="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-primary transition-custom">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-primary transition-custom">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+
+                            <!-- 指示点 -->
+                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10" id="carouselDots">
+                                <!-- 指示点将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 发布按钮 -->
+                    <div class="text-center mt-6">
+                        <a href="post.html" class="inline-flex items-center px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
+                            <i class="fa fa-plus mr-2"></i>
+                            分享你的潮流想法
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- 加载更多 -->
-            <div class="text-center mt-12 scroll-animate">
-                <button onclick="loadMorePosts()" class="inline-flex items-center px-6 py-3 rounded-full border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-custom">
-                    加载更多 <i class="fa fa-long-arrow-down ml-2"></i>
-                </button>
-            </div>
+
         </div>
     </section>
 
@@ -1532,8 +1555,6 @@
 
     // 检查是否从注册页跳转过来
     window.addEventListener('DOMContentLoaded', () => {
-        // 检查登录状态
-        checkLoginState();
         const urlParams = new URLSearchParams(window.location.search);
         const registered = urlParams.get('registered');
         const tag = urlParams.get('tag');
@@ -1566,185 +1587,284 @@
         }, 3500);
     }
 
-    // 动态列表相关
-    let postsDisplayed = 0;
-    const POSTS_PER_PAGE = 5;
 
-    // 加载并显示动态列表
-    function loadPosts() {
+
+
+
+
+
+    // ========== 轮播功能 ==========
+    let currentSlide = 0;
+    let autoPlayTimer = null;
+
+    // 初始化轮播
+    function initCarousel() {
         const posts = PostsManager.getAllPosts();
-        const postsList = document.getElementById('postsList');
+        const track = document.getElementById('carouselTrack');
+        const dotsContainer = document.getElementById('carouselDots');
 
         if (posts.length === 0) {
-            postsList.innerHTML = `
-                <div class="text-center py-12 text-gray-500">
-                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
-                    <p>暂无动态，快去分享你的潮流想法吧～</p>
-                </div>
-            `;
+            // 没有动态时显示占位符
             return;
         }
 
-        // 显示前POSTS_PER_PAGE条动态
-        const postsToShow = posts.slice(0, POSTS_PER_PAGE);
-        postsList.innerHTML = postsToShow.map(post => createPostCard(post)).join('');
-        postsDisplayed = postsToShow.length;
+        // 清空现有卡片
+        track.innerHTML = '';
+        dotsContainer.innerHTML = '';
+
+        // 创建卡片
+        posts.slice(0, 5).forEach((post, index) => {
+            const slide = createCarouselSlide(post);
+            track.appendChild(slide);
+
+            // 创建指示点
+            const dot = document.createElement('button');
+            dot.className = `w-2 h-2 rounded-full transition-all ${index === 0 ? 'bg-primary w-6' : 'bg-gray-300'}`;
+            dot.onclick = () => goToSlide(index);
+            dotsContainer.appendChild(dot);
+        });
+
+        currentSlide = 0;
+        startAutoPlay();
+        initTouchEvents();
     }
 
-    // 创建动态卡片HTML
-    function createPostCard(post) {
+    // 刷新轮播（用于删除动态后更新）
+    function refreshCarousel() {
+        // 停止当前的自动播放
+        clearInterval(autoPlayTimer);
+        
+        // 重新初始化轮播
+        initCarousel();
+    }
+
+    // 创建轮播卡片
+    function createCarouselSlide(post) {
         const user = JSON.parse(localStorage.getItem('z_users') || '{}')[post.username];
         const userAvatar = user ? user.avatar : 'https://picsum.photos/40/40?random=default';
         const userTag = user ? (user.tags[0] || '潮流新星') : '潮流新星';
-        
-        const imagesHTML = post.images.length > 0 ? `
-            <div class="grid grid-cols-${Math.min(post.images.length, 3)} gap-2 my-4">
-                ${post.images.slice(0, 3).map((img, idx) => `
-                    <img src="${img}" alt="图片${idx + 1}" class="rounded-lg w-full h-40 object-cover">
-                `).join('')}
-            </div>
+
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide flex flex-col justify-between p-6 bg-white';
+
+        const imageHTML = post.images.length > 0 ? `
+            <img src="${post.images[0]}" alt="动态图片" class="w-full h-40 object-cover rounded-lg mb-4">
         ` : '';
 
         const tagsHTML = post.tags.length > 0 ? `
             <div class="flex flex-wrap gap-2 mb-3">
                 ${post.tags.map(tag => `
-                    <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">${tag}</span>
+                    <span class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">${tag}</span>
                 `).join('')}
             </div>
         ` : '';
 
-        const isLiked = UserManager.isLoggedIn() && PostsManager.isLikedByUser(post.id, UserManager.getCurrentUsername());
-        const isCollected = UserManager.isLoggedIn() && PostsManager.isCollectedByUser(post.id, UserManager.getCurrentUsername());
-
-        return `
-            <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 scroll-animate">
-                <!-- 用户信息 -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <img src="${userAvatar}" alt="头像" class="w-12 h-12 rounded-full object-cover">
-                        <div>
-                            <h4 class="font-bold text-sm">${post.username}</h4>
-                            <p class="text-xs text-gray-500">${userTag}</p>
-                        </div>
+        slide.innerHTML = `
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="${userAvatar}" alt="头像" class="w-10 h-10 rounded-full">
+                    <div>
+                        <h4 class="font-bold text-sm">${post.username}</h4>
+                        <p class="text-xs text-gray-500">${userTag}</p>
                     </div>
-                    <span class="text-xs text-gray-400">${post.createTime}</span>
                 </div>
-
-                <!-- 标签 -->
                 ${tagsHTML}
-
-                <!-- 内容 -->
-                <p class="text-gray-700 mb-4 leading-relaxed">${post.content}</p>
-
-                <!-- 图片 -->
-                ${imagesHTML}
-
-                <!-- 互动按钮 -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-primary transition-custom" onclick="togglePostLike(${post.id}, this)">
-                        <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
-                        <span class="text-sm">${post.likes.length}</span>
-                    </button>
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-secondary transition-custom" onclick="scrollToComments()">
-                        <i class="fa fa-comment-o"></i>
-                        <span class="text-sm">${post.comments.length}</span>
-                    </button>
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-yellow transition-custom" onclick="togglePostCollect(${post.id}, this)">
-                        <i class="fa ${isCollected ? 'fa-star' : 'fa-star-o'}"></i>
-                        <span class="text-sm">${post.collects.length}</span>
-                    </button>
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-accent transition-custom" onclick="sharePost(${post.id})">
-                        <i class="fa fa-share-alt"></i>
-                        <span class="text-sm">分享</span>
-                    </button>
-                </div>
+                <p class="text-gray-700 mb-3 line-clamp-3">${post.content}</p>
+                ${imageHTML}
+            </div>
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-custom">
+                    <i class="fa fa-heart-o"></i>
+                    <span class="text-sm">${post.likes.length}</span>
+                </button>
+                <button class="flex items-center gap-1 text-gray-500 hover:text-secondary transition-custom">
+                    <i class="fa fa-comment-o"></i>
+                    <span class="text-sm">${post.comments.length}</span>
+                </button>
+                <button class="flex items-center gap-1 text-gray-500 hover:text-yellow transition-custom">
+                    <i class="fa fa-star-o"></i>
+                    <span class="text-sm">${post.collects.length}</span>
+                </button>
             </div>
         `;
+
+        return slide;
     }
 
-    // 点赞动态
-    function togglePostLike(postId, button) {
-        if (!UserManager.isLoggedIn()) {
-            alert('请先登录～');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const result = PostsManager.toggleLike(postId);
-        if (result.success) {
-            const icon = button.querySelector('i');
-            const count = button.querySelector('span');
-            const post = PostsManager.getPostById(postId);
-
-            if (result.isLiked) {
-                icon.classList.remove('fa-heart-o');
-                icon.classList.add('fa-heart');
-                button.classList.add('text-primary');
-            } else {
-                icon.classList.remove('fa-heart');
-                icon.classList.add('fa-heart-o');
-                button.classList.remove('text-primary');
-            }
-
-            count.textContent = post.likes.length;
-        }
-    }
-
-    // 收藏动态
-    function togglePostCollect(postId, button) {
-        if (!UserManager.isLoggedIn()) {
-            alert('请先登录～');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const result = PostsManager.toggleCollect(postId);
-        if (result.success) {
-            const icon = button.querySelector('i');
-            const count = button.querySelector('span');
-            const post = PostsManager.getPostById(postId);
-
-            if (result.isCollected) {
-                icon.classList.remove('fa-star-o');
-                icon.classList.add('fa-star');
-                button.classList.add('text-yellow');
-            } else {
-                icon.classList.remove('fa-star');
-                icon.classList.add('fa-star-o');
-                button.classList.remove('text-yellow');
-            }
-
-            count.textContent = post.collects.length;
-        }
-    }
-
-    // 分享动态
-    function sharePost(postId) {
-        alert('分享功能开发中...');
-    }
-
-    // 加载更多动态
-    function loadMorePosts() {
+    // 上一张
+    function prevSlide() {
         const posts = PostsManager.getAllPosts();
-        const postsList = document.getElementById('postsList');
-
-        if (postsDisplayed >= posts.length) {
-            alert('没有更多动态了～');
-            return;
-        }
-
-        const nextPosts = posts.slice(postsDisplayed, postsDisplayed + POSTS_PER_PAGE);
-        const newHTML = nextPosts.map(post => createPostCard(post)).join('');
-        
-        postsList.innerHTML += newHTML;
-        postsDisplayed += nextPosts.length;
+        const totalSlides = Math.min(posts.length, 5);
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+        resetAutoPlay();
     }
 
-    // 页面加载时显示动态列表
+    // 下一张
+    function nextSlide() {
+        const posts = PostsManager.getAllPosts();
+        const totalSlides = Math.min(posts.length, 5);
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateCarousel();
+        resetAutoPlay();
+    }
+
+    // 跳转到指定卡片
+    function goToSlide(index) {
+        currentSlide = index;
+        updateCarousel();
+        resetAutoPlay();
+    }
+
+    // 更新轮播位置
+    function updateCarousel() {
+        const track = document.getElementById('carouselTrack');
+        const dots = document.querySelectorAll('#carouselDots button');
+
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+        dots.forEach((dot, index) => {
+            if (index === currentSlide) {
+                dot.className = 'w-6 h-2 rounded-full bg-primary transition-all';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-gray-300 transition-all';
+            }
+        });
+    }
+
+    // 自动播放
+    function startAutoPlay() {
+        autoPlayTimer = setInterval(() => {
+            const posts = PostsManager.getAllPosts();
+            const totalSlides = Math.min(posts.length, 5);
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+        }, 8000); // 8秒切换一次
+    }
+
+    // 重置自动播放
+    function resetAutoPlay() {
+        clearInterval(autoPlayTimer);
+        startAutoPlay();
+    }
+
+    // ========== 触摸滑动支持 ==========
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    function handleSwipe() {
+        const swipeThreshold = 50; // 最小滑动距离
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // 向左滑动，显示下一张
+                nextSlide();
+            } else {
+                // 向右滑动，显示上一张
+                prevSlide();
+            }
+        }
+    }
+
+    // 初始化触摸事件
+    function initTouchEvents() {
+        const carouselContainer = document.getElementById('carouselContainer');
+        if (!carouselContainer) return;
+
+        carouselContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        carouselContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+    }
+
+    // 页面加载时初始化
     window.addEventListener('DOMContentLoaded', () => {
-        loadPosts();
+        // 检查登录状态
+        checkLoginState();
+        
+        // 如果没有动态，添加示例数据用于演示
+        if (PostsManager.getAllPosts().length === 0) {
+            addDemoPostsForCarousel();
+        }
+        
+        initCarousel();
         updateActiveNav();
     }, { once: true });
+
+    // 添加示例动态用于轮播演示
+    function addDemoPostsForCarousel() {
+        const demoPosts = [
+            {
+                username: 'demo_user',
+                content: '今年冬天最流行的穿搭就是这样！复古风格搭配现代感，完美诠释Z世代的时尚态度。',
+                images: ['https://picsum.photos/600/400?random=101'],
+                tags: ['#街头穿搭', '#冬日时尚', '#潮流搭配']
+            },
+            {
+                username: 'demo_user',
+                content: '发现了一家超级小众的咖啡馆，环境超棒，咖啡也很地道。推荐给所有热爱生活的朋友～',
+                images: ['https://picsum.photos/600/400?random=102'],
+                tags: ['#生活方式', '#咖啡文化', '#小众推荐']
+            },
+            {
+                username: 'demo_user',
+                content: '最近在学习数字艺术，这是我的第一个NFT作品。虽然还很稚嫩，但我很喜欢这个创意过程！',
+                images: ['https://picsum.photos/600/400?random=103'],
+                tags: ['#数字艺术', '#NFT', '#创意表达']
+            },
+            {
+                username: 'demo_user',
+                content: '独立音乐人的演唱会真的太棒了！现场的氛围让我重新爱上了音乐。支持原创，支持独立音乐人！',
+                images: ['https://picsum.photos/600/400?random=104'],
+                tags: ['#音乐', '#独立音乐', '#现场演唱会']
+            },
+            {
+                username: 'demo_user',
+                content: '电竞比赛看到了精彩的操作，这就是我为什么热爱游戏的原因。游戏不仅是娱乐，更是艺术！',
+                images: ['https://picsum.photos/600/400?random=105'],
+                tags: ['#电竞', '#游戏', '#竞技精神']
+            }
+        ];
+
+        // 创建演示用户
+        const demoUser = {
+            username: 'demo_user',
+            password: 'base64:ZGVtbzEyMw==',
+            email: 'demo@example.com',
+            avatar: 'https://picsum.photos/100/100?random=demo',
+            tags: ['潮流新星', '内容创作者']
+        };
+
+        // 添加演示用户到用户系统
+        const users = JSON.parse(localStorage.getItem('z_users') || '{}');
+        if (!users['demo_user']) {
+            users['demo_user'] = demoUser;
+            localStorage.setItem('z_users', JSON.stringify(users));
+        }
+
+        // 直接添加示例动态到存储
+        const posts = JSON.parse(localStorage.getItem('allPosts') || '[]');
+        demoPosts.forEach(postData => {
+            const newPost = {
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                username: postData.username,
+                content: postData.content,
+                images: postData.images || [],
+                tags: postData.tags || [],
+                createTime: new Date().toLocaleString(),
+                likes: [],
+                comments: [],
+                collects: []
+            };
+            posts.unshift(newPost);
+        });
+        localStorage.setItem('allPosts', JSON.stringify(posts));
+    }
 
     // ========== 移动端 Tab 切换 ==========
     function switchMobileTab(tabName, button) {

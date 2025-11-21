@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态列表 - Z世代潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
+    <!-- 引入动态管理模块 -->
+    <script src="js/postsManager.js"></script>
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                },
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
+        }
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 0;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: #FF6B35;
+        }
+
+        .nav-item i {
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 60px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none;
+            }
+
+            body {
+                padding-bottom: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-light text-dark antialiased">
+<!-- 导航栏 -->
+<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white shadow-sm py-4">
+    <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center space-x-2">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                <span class="text-white font-bold text-xl">Z</span>
+            </div>
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Z+</span>
+        </a>
+
+        <!-- 标题 -->
+        <h1 class="text-xl font-bold">动态列表</h1>
+
+        <!-- 返回按钮 -->
+        <a href="index.html" class="flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
+            <i class="fa fa-arrow-left"></i>
+            <span class="hidden sm:inline">返回</span>
+        </a>
+    </div>
+</header>
+
+<main class="pt-24 pb-20">
+    <!-- 动态列表区 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4 md:px-6 max-w-2xl">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12 scroll-animate">
+                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                    潮流<span class="text-primary">动态</span>
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    查看所有用户分享的潮流动态，发现更多有趣的内容
+                </p>
+            </div>
+
+            <!-- 动态列表 -->
+            <div class="space-y-6" id="postsContainer">
+                <!-- 动态卡片将通过JavaScript动态生成 -->
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fa fa-spinner fa-spin text-4xl mb-4"></i>
+                    <p>加载中...</p>
+                </div>
+            </div>
+
+            <!-- 加载更多 -->
+            <div class="text-center mt-12 scroll-animate" id="loadMoreContainer" style="display: none;">
+                <button onclick="loadMorePosts()" class="inline-flex items-center px-6 py-3 rounded-full border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-custom">
+                    加载更多 <i class="fa fa-long-arrow-down ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 底部导航 -->
+<nav class="bottom-nav md:hidden">
+    <a href="index.html" class="nav-item" data-page="home">
+        <i class="fa fa-home"></i>
+        <span>首页</span>
+    </a>
+    <a href="post.html" class="nav-item" data-page="post">
+        <i class="fa fa-plus-circle"></i>
+        <span>发布</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="profile">
+        <i class="fa fa-user"></i>
+        <span>我的</span>
+    </a>
+</nav>
+
+<script>
+    const POSTS_PER_PAGE = 10;
+    let postsDisplayed = 0;
+
+    // 创建动态卡片HTML
+    function createPostCard(post) {
+        const user = JSON.parse(localStorage.getItem('z_users') || '{}')[post.username];
+        const userAvatar = user ? user.avatar : 'https://picsum.photos/40/40?random=default';
+        const userTag = user ? (user.tags[0] || '潮流新星') : '潮流新星';
+        
+        const imagesHTML = post.images.length > 0 ? `
+            <div class="grid grid-cols-${Math.min(post.images.length, 3)} gap-2 my-4">
+                ${post.images.slice(0, 3).map((img, idx) => `
+                    <img src="${img}" alt="图片${idx + 1}" class="rounded-lg w-full h-40 object-cover">
+                `).join('')}
+            </div>
+        ` : '';
+
+        const tagsHTML = post.tags.length > 0 ? `
+            <div class="flex flex-wrap gap-2 mb-3">
+                ${post.tags.map(tag => `
+                    <span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">${tag}</span>
+                `).join('')}
+            </div>
+        ` : '';
+
+        const isLiked = UserManager.isLoggedIn() && PostsManager.isLikedByUser(post.id, UserManager.getCurrentUsername());
+        const isCollected = UserManager.isLoggedIn() && PostsManager.isCollectedByUser(post.id, UserManager.getCurrentUsername());
+
+        return `
+            <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 scroll-animate card-hover">
+                <!-- 用户信息 -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="${userAvatar}" alt="头像" class="w-12 h-12 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-bold text-sm">${post.username}</h4>
+                            <p class="text-xs text-gray-500">${userTag}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-400">${post.createTime}</span>
+                </div>
+
+                <!-- 标签 -->
+                ${tagsHTML}
+
+                <!-- 内容 -->
+                <p class="text-gray-700 mb-4 leading-relaxed">${post.content}</p>
+
+                <!-- 图片 -->
+                ${imagesHTML}
+
+                <!-- 互动按钮 -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button class="flex items-center gap-2 text-gray-500 hover:text-primary transition-custom" onclick="togglePostLike(${post.id}, this)">
+                        <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
+                        <span class="text-sm">${post.likes.length}</span>
+                    </button>
+                    <button class="flex items-center gap-2 text-gray-500 hover:text-secondary transition-custom">
+                        <i class="fa fa-comment-o"></i>
+                        <span class="text-sm">${post.comments.length}</span>
+                    </button>
+                    <button class="flex items-center gap-2 text-gray-500 hover:text-yellow transition-custom" onclick="togglePostCollect(${post.id}, this)">
+                        <i class="fa ${isCollected ? 'fa-star' : 'fa-star-o'}"></i>
+                        <span class="text-sm">${post.collects.length}</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 加载动态列表
+    function loadPosts() {
+        const posts = PostsManager.getAllPosts();
+        const container = document.getElementById('postsContainer');
+        const loadMoreBtn = document.getElementById('loadMoreContainer');
+
+        if (posts.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                    <p>暂无动态，快去分享你的潮流想法吧～</p>
+                </div>
+            `;
+            loadMoreBtn.style.display = 'none';
+            return;
+        }
+
+        // 显示前POSTS_PER_PAGE条动态
+        const postsToShow = posts.slice(0, POSTS_PER_PAGE);
+        container.innerHTML = postsToShow.map(post => createPostCard(post)).join('');
+        postsDisplayed = postsToShow.length;
+
+        // 显示加载更多按钮
+        if (posts.length > POSTS_PER_PAGE) {
+            loadMoreBtn.style.display = 'block';
+        } else {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
+
+    // 加载更多动态
+    function loadMorePosts() {
+        const posts = PostsManager.getAllPosts();
+        const container = document.getElementById('postsContainer');
+        const loadMoreBtn = document.getElementById('loadMoreContainer');
+
+        if (postsDisplayed >= posts.length) {
+            loadMoreBtn.style.display = 'none';
+            return;
+        }
+
+        const nextPosts = posts.slice(postsDisplayed, postsDisplayed + POSTS_PER_PAGE);
+        const newHTML = nextPosts.map(post => createPostCard(post)).join('');
+        
+        container.innerHTML += newHTML;
+        postsDisplayed += nextPosts.length;
+
+        // 如果已经显示全部，隐藏加载更多按钮
+        if (postsDisplayed >= posts.length) {
+            loadMoreBtn.style.display = 'none';
+        }
+
+        // 触发滚动动画
+        observeScrollAnimations();
+    }
+
+    // 点赞功能
+    function togglePostLike(postId, button) {
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            return;
+        }
+
+        const result = PostsManager.toggleLike(postId);
+        if (result.success) {
+            const icon = button.querySelector('i');
+            const count = button.querySelector('span');
+            const post = PostsManager.getPostById(postId);
+            
+            icon.className = `fa ${result.isLiked ? 'fa-heart' : 'fa-heart-o'}`;
+            count.textContent = post.likes.length;
+        }
+    }
+
+    // 收藏功能
+    function togglePostCollect(postId, button) {
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            return;
+        }
+
+        const result = PostsManager.toggleCollect(postId);
+        if (result.success) {
+            const icon = button.querySelector('i');
+            const count = button.querySelector('span');
+            const post = PostsManager.getPostById(postId);
+            
+            icon.className = `fa ${result.isCollected ? 'fa-star' : 'fa-star-o'}`;
+            count.textContent = post.collects.length;
+        }
+    }
+
+    // 滚动动画
+    function observeScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-animate').forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    // 自动激活当前页面的导航项
+    function updateActiveNav() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const href = item.getAttribute('href');
+            if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    // 页面加载
+    window.addEventListener('DOMContentLoaded', () => {
+        loadPosts();
+        updateActiveNav();
+        observeScrollAnimations();
+    });
+</script>
+</body>
+</html>
