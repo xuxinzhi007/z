@@ -12,6 +12,8 @@
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
     <script src="js/postsManager.js"></script>
+    <!-- 引入社群管理模块 -->
+    <script src="js/communityManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -392,7 +394,7 @@
         <nav class="hidden md:flex items-center space-x-8">
             <a href="#home" class="font-medium text-dark hover:text-primary transition-custom">首页</a>
             <a href="#trends" class="font-medium text-dark hover:text-primary transition-custom">潮流</a>
-            <a href="#community" class="font-medium text-dark hover:text-primary transition-custom">社区</a>
+            <a href="communities.html" class="font-medium text-dark hover:text-primary transition-custom">社群</a>
             <a href="#features" class="font-medium text-dark hover:text-primary transition-custom">特色</a>
             <a href="love/index.html" class="font-medium text-accent hover:text-primary transition-custom flex items-center">
                 <i class="fa fa-heart mr-1"></i>Love
@@ -433,7 +435,7 @@
         <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <a href="#home" class="font-medium text-dark hover:text-primary py-2 transition-custom">首页</a>
             <a href="#trends" class="font-medium text-dark hover:text-primary py-2 transition-custom">潮流</a>
-            <a href="#community" class="font-medium text-dark hover:text-primary py-2 transition-custom">社区</a>
+            <a href="communities.html" class="font-medium text-dark hover:text-primary py-2 transition-custom">社群</a>
             <a href="#features" class="font-medium text-dark hover:text-primary py-2 transition-custom">特色</a>
             <a href="love/index.html" class="font-medium text-accent hover:text-primary py-2 transition-custom flex items-center">
                 <i class="fa fa-heart mr-2"></i>Love
@@ -461,8 +463,8 @@
                         <a href="trends.html" class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-center hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
                             探索潮流
                         </a>
-                        <a href="#community" class="px-8 py-3 rounded-full border-2 border-dark text-dark font-medium text-center hover:bg-dark hover:text-white transition-custom">
-                            加入社区
+                        <a href="communities.html" class="px-8 py-3 rounded-full border-2 border-dark text-dark font-medium text-center hover:bg-dark hover:text-white transition-custom">
+                            加入社群
                         </a>
                     </div>
                     <div class="flex items-center space-x-6">
@@ -543,10 +545,6 @@
             <button class="mobile-tab-btn active" data-tab="trends" onclick="switchMobileTab('trends', this)">
                 <i class="fa fa-fire"></i>
                 <span>潮流</span>
-            </button>
-            <button class="mobile-tab-btn" data-tab="community" onclick="switchMobileTab('community', this)">
-                <i class="fa fa-users"></i>
-                <span>社区</span>
             </button>
             <button class="mobile-tab-btn" data-tab="features" onclick="switchMobileTab('features', this)">
                 <i class="fa fa-star"></i>
@@ -708,7 +706,7 @@
     </section>
 
     <!-- 社区区域 -->
-    <section id="community" class="mobile-tab-content py-20 bg-gray-50">
+    <section id="community" class="py-20 bg-gray-50">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
             <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
@@ -723,155 +721,20 @@
                 </p>
             </div>
 
-            <!-- 社群分类标签 -->
-            <div class="flex flex-wrap justify-center gap-3 mb-10 scroll-animate">
-                <button class="px-5 py-2 rounded-full bg-secondary text-white font-medium">全部</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">游戏</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">音乐</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">影视</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">时尚</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">美食</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">旅行</button>
-                <button class="px-5 py-2 rounded-full bg-white text-gray-700 font-medium hover:bg-gray-100 transition-custom">学习</button>
-            </div>
-
             <!-- 社群卡片 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- 社群卡片1 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate">
-                    <div class="relative h-36">
-                        <img src="https://picsum.photos/400/300?random=30" alt="游戏爱好者" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">游戏爱好者</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> 12.5k 成员</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">热门</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">分享游戏攻略、组队开黑、讨论最新游戏动态，寻找你的游戏搭子</p>
-                        <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom">
-                            加入社群
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 社群卡片2 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate" style="transition-delay: 0.1s;">
-                    <div class="relative h-36">
-                        <img src="https://picsum.photos/400/300?random=31" alt="独立音乐圈" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">独立音乐圈</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> 8.7k 成员</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-accent/10 text-accent">新锐</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">发现小众独立音乐，分享歌单，交流音乐创作，找到懂你的听众</p>
-                        <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom">
-                            加入社群
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 社群卡片3 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate" style="transition-delay: 0.2s;">
-                    <div class="relative h-36">
-                        <img src="https://picsum.photos/400/300?random=32" alt="潮流穿搭" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">潮流穿搭</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> 15.3k 成员</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">热门</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">分享穿搭技巧、潮流单品、购物攻略，打造属于你的个人风格</p>
-                        <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom">
-                            加入社群
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 社群卡片4 -->
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate" style="transition-delay: 0.3s;">
-                    <div class="relative h-36">
-                        <img src="https://picsum.photos/400/300?random=33" alt="学习打卡" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">学习打卡</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> 9.2k 成员</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-yellow/10 text-yellow">成长</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">一起学习、互相监督、分享资源、共同进步，成为更好的自己</p>
-                        <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom">
-                            加入社群
-                        </button>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="communitiesGrid">
+                <!-- 社群卡片将通过JavaScript动态生成 -->
+                <div class="text-center py-12 text-gray-500 col-span-full">
+                    <i class="fa fa-spinner fa-spin text-4xl mb-4"></i>
+                    <p>加载社群中...</p>
                 </div>
             </div>
 
-            <!-- 活跃用户展示 -->
-            <div class="mt-20 scroll-animate">
-                <h3 class="text-2xl font-bold text-center mb-10">社区活跃达人</h3>
-                <div class="flex overflow-x-auto scrollbar-hide gap-6 pb-4">
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=40" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">小星</h4>
-                        <p class="text-sm text-gray-500">游戏达人</p>
-                    </div>
-
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=41" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">阿泽</h4>
-                        <p class="text-sm text-gray-500">音乐博主</p>
-                    </div>
-
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=42" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">七七</h4>
-                        <p class="text-sm text-gray-500">穿搭博主</p>
-                    </div>
-
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=43" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">小宇</h4>
-                        <p class="text-sm text-gray-500">美食达人</p>
-                    </div>
-
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=44" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">安安</h4>
-                        <p class="text-sm text-gray-500">旅行博主</p>
-                    </div>
-
-                    <div class="flex-shrink-0 w-32 text-center">
-                        <div class="relative mx-auto mb-3">
-                            <img src="https://picsum.photos/200/200?random=45" alt="用户头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
-                            <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-green-500 border-2 border-white"></span>
-                        </div>
-                        <h4 class="font-bold">小杰</h4>
-                        <p class="text-sm text-gray-500">数码达人</p>
-                    </div>
-                </div>
+            <!-- 查看更多按钮 -->
+            <div class="text-center mt-12 scroll-animate">
+                <a href="communities.html" class="inline-flex items-center px-6 py-3 rounded-full border-2 border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom">
+                    查看全部社群 <i class="fa fa-long-arrow-right ml-2"></i>
+                </a>
             </div>
         </div>
     </section>
@@ -1904,6 +1767,71 @@
             }
         });
     }
+
+    // ========== 社群功能 ==========
+    // 加载首页社群列表
+    function loadHomeCommunities() {
+        const communities = CommunityManager.getAllCommunities();
+        const grid = document.getElementById('communitiesGrid');
+
+        if (!grid) return;
+
+        if (communities.length === 0) {
+            grid.innerHTML = `
+                <div class="text-center py-12 text-gray-500 col-span-full">
+                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                    <p>暂无社群，快去创建一个吧～</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 只显示前4个社群
+        const featured = communities.slice(0, 4);
+
+        grid.innerHTML = featured.map((community, index) => `
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate" style="transition-delay: ${index * 0.1}s;">
+                <div class="relative h-36">
+                    <img src="${community.avatar}" alt="${community.name}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">${community.name}</h3>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> ${community.memberCount} 成员</span>
+                        <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">${community.category}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">${community.description}</p>
+                    <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom" onclick="joinCommunityFromHome(${community.id})">
+                        加入社群
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 从首页加入社群
+    function joinCommunityFromHome(communityId) {
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const result = CommunityManager.joinCommunity(communityId);
+        if (result.success) {
+            alert('加入社群成功！');
+            loadHomeCommunities();
+        } else {
+            alert(result.message);
+        }
+    }
+
+    // 页面加载时初始化社群
+    window.addEventListener('DOMContentLoaded', () => {
+        loadHomeCommunities();
+        updateActiveNav();
+    });
 </script>
 
 <!-- 底部导航 -->
@@ -1911,6 +1839,10 @@
     <a href="index.html" class="nav-item active" data-page="home">
         <i class="fa fa-home"></i>
         <span>首页</span>
+    </a>
+    <a href="communities.html" class="nav-item" data-page="communities">
+        <i class="fa fa-users"></i>
+        <span>社群</span>
     </a>
     <a href="post.html" class="nav-item" data-page="post">
         <i class="fa fa-plus-circle"></i>

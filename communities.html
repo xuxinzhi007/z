@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社群广场 - Z世代潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
+    <!-- 引入社群管理模块 -->
+    <script src="js/communityManager.js"></script>
+
+    <!-- 配置Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#40BFFF',
+                        accent: '#FF7DAB',
+                        yellow: '#FFD166',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .transition-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
+        }
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 社群卡片 */
+        .community-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .community-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .community-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .community-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .community-title {
+            flex: 1;
+        }
+
+        .community-title h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: #1E293B;
+        }
+
+        .community-title p {
+            font-size: 13px;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .community-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .community-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .community-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FF6B35;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .community-action {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn.join {
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+        }
+
+        .action-btn.join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+        }
+
+        .action-btn.joined {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-btn.joined:hover {
+            background: #e2e8f0;
+        }
+
+        /* 分类过滤 */
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            scrollbar-width: none;
+        }
+
+        .category-filter::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            border-color: #FF6B35;
+            color: #FF6B35;
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 0;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: #FF6B35;
+        }
+
+        .nav-item i {
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 60px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none;
+            }
+
+            body {
+                padding-bottom: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-light text-dark antialiased">
+<!-- 导航栏 -->
+<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white shadow-sm py-4">
+    <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <!-- 返回按钮（移动端） -->
+        <a href="index.html" class="md:hidden flex items-center text-primary hover:text-secondary transition-custom">
+            <i class="fa fa-arrow-left text-xl"></i>
+        </a>
+
+        <!-- Logo -->
+        <a href="index.html" class="hidden md:flex items-center space-x-2">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                <span class="text-white font-bold text-xl">Z</span>
+            </div>
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Z+</span>
+        </a>
+
+        <!-- 标题 -->
+        <h1 class="text-lg md:text-xl font-bold">社群广场</h1>
+
+        <!-- 返回按钮（桌面端） -->
+        <a href="index.html" class="hidden md:flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
+            <i class="fa fa-arrow-left"></i>
+            <span>返回</span>
+        </a>
+    </div>
+</header>
+
+<main class="pt-24 pb-20">
+    <!-- 社群广场 -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12">
+                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                    发现<span class="text-primary">社群</span>
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    找到志同道合的潮流爱好者，一起分享和讨论
+                </p>
+            </div>
+
+            <!-- 分类过滤 -->
+            <div class="category-filter">
+                <button class="category-btn active" onclick="filterByCategory('全部')">
+                    ✨ 全部
+                </button>
+                <button class="category-btn" onclick="filterByCategory('游戏')">
+                    🎮 游戏
+                </button>
+                <button class="category-btn" onclick="filterByCategory('穿搭')">
+                    👗 穿搭
+                </button>
+                <button class="category-btn" onclick="filterByCategory('音乐')">
+                    🎵 音乐
+                </button>
+                <button class="category-btn" onclick="filterByCategory('美食')">
+                    🍔 美食
+                </button>
+                <button class="category-btn" onclick="filterByCategory('摄影')">
+                    📸 摄影
+                </button>
+                <button class="category-btn" onclick="filterByCategory('其他')">
+                    🌟 其他
+                </button>
+            </div>
+
+            <!-- 社群列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="communitiesContainer">
+                <div class="text-center py-12 text-gray-500 col-span-full">
+                    <i class="fa fa-spinner fa-spin text-4xl mb-4"></i>
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 底部导航 -->
+<nav class="bottom-nav md:hidden">
+    <a href="index.html" class="nav-item" data-page="home">
+        <i class="fa fa-home"></i>
+        <span>首页</span>
+    </a>
+    <a href="communities.html" class="nav-item active" data-page="communities">
+        <i class="fa fa-users"></i>
+        <span>社群</span>
+    </a>
+    <a href="post.html" class="nav-item" data-page="post">
+        <i class="fa fa-plus-circle"></i>
+        <span>发布</span>
+    </a>
+    <a href="profile.html" class="nav-item" data-page="profile">
+        <i class="fa fa-user"></i>
+        <span>我的</span>
+    </a>
+</nav>
+
+<script>
+    let currentCategory = '全部';
+
+    // 获取分类图标
+    function getCategoryIcon(category) {
+        const icons = {
+            '游戏': '🎮',
+            '穿搭': '👗',
+            '音乐': '🎵',
+            '美食': '🍔',
+            '摄影': '📸',
+            '其他': '🌟'
+        };
+        return icons[category] || '✨';
+    }
+
+    // 创建社群卡片
+    function createCommunityCard(community) {
+        const currentUser = UserManager.getCurrentUsername();
+        const isMember = CommunityManager.isUserInCommunity(community.id, currentUser);
+
+        return `
+            <div class="community-card card-hover">
+                <div class="community-header">
+                    <img src="${community.avatar}" alt="${community.name}" class="community-avatar">
+                    <div class="community-title">
+                        <h3>${community.name}</h3>
+                        <p>${getCategoryIcon(community.category)} ${community.category}</p>
+                    </div>
+                </div>
+
+                <p class="community-description">${community.description}</p>
+
+                <div class="community-stats">
+                    <div class="stat">
+                        <div class="stat-value">${community.memberCount}</div>
+                        <div class="stat-label">成员</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${community.posts}</div>
+                        <div class="stat-label">动态</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${community.creator === currentUser ? '创建者' : '浏览'}</div>
+                        <div class="stat-label">身份</div>
+                    </div>
+                </div>
+
+                <div class="community-action">
+                    ${isMember ? `
+                        <button class="action-btn joined" onclick="leaveCommunity(${community.id})">
+                            <i class="fa fa-check mr-1"></i>已加入
+                        </button>
+                    ` : `
+                        <button class="action-btn join" onclick="joinCommunity(${community.id})">
+                            <i class="fa fa-plus mr-1"></i>加入
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }
+
+    // 加载社群列表
+    function loadCommunities() {
+        const communities = CommunityManager.getAllCommunities();
+        const container = document.getElementById('communitiesContainer');
+
+        if (communities.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500 col-span-full">
+                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                    <p>暂无社群，快去创建一个吧～</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 按分类过滤
+        let filtered = communities;
+        if (currentCategory !== '全部') {
+            filtered = communities.filter(c => c.category === currentCategory);
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500 col-span-full">
+                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                    <p>这个分类暂无社群～</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 按成员数排序
+        filtered.sort((a, b) => b.memberCount - a.memberCount);
+
+        container.innerHTML = filtered.map(community => createCommunityCard(community)).join('');
+    }
+
+    // 按分类过滤
+    function filterByCategory(category) {
+        currentCategory = category;
+
+        // 更新按钮状态
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 重新加载社群
+        loadCommunities();
+    }
+
+    // 加入社群
+    function joinCommunity(communityId) {
+        if (!UserManager.isLoggedIn()) {
+            alert('请先登录～');
+            return;
+        }
+
+        const result = CommunityManager.joinCommunity(communityId);
+        if (result.success) {
+            alert('加入社群成功！');
+            loadCommunities();
+        } else {
+            alert(result.message);
+        }
+    }
+
+    // 退出社群
+    function leaveCommunity(communityId) {
+        if (confirm('确定要退出这个社群吗？')) {
+            const result = CommunityManager.leaveCommunity(communityId);
+            if (result.success) {
+                alert('已退出社群');
+                loadCommunities();
+            } else {
+                alert(result.message);
+            }
+        }
+    }
+
+    // 页面加载
+    window.addEventListener('DOMContentLoaded', () => {
+        loadCommunities();
+    });
+</script>
+</body>
+</html>
