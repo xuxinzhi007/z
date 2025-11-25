@@ -250,6 +250,84 @@ const CommunityManager = {
     },
 
     /**
+     * 编辑社群（仅创建者可编辑）
+     * @param {number} communityId - 社群ID
+     * @param {Object} updateData - 要更新的数据
+     * @param {string} updateData.name - 社群名称
+     * @param {string} updateData.description - 社群描述
+     * @param {string} updateData.category - 社群分类
+     * @returns {Object} {success: boolean, message: string, community: Object}
+     */
+    editCommunity(communityId, updateData) {
+        if (!UserManager.isLoggedIn()) {
+            return {
+                success: false,
+                message: '请先登录～'
+            };
+        }
+
+        const currentUser = UserManager.getCurrentUsername();
+        const communities = this.getAllCommunities();
+        const communityIndex = communities.findIndex(c => c.id === communityId);
+
+        if (communityIndex === -1) {
+            return {
+                success: false,
+                message: '社群不存在'
+            };
+        }
+
+        const community = communities[communityIndex];
+
+        // 检查是否是创建者
+        if (community.creator !== currentUser) {
+            return {
+                success: false,
+                message: '只有社群创建者才能编辑社群'
+            };
+        }
+
+        // 验证输入
+        if (updateData.name && updateData.name.trim() === '') {
+            return {
+                success: false,
+                message: '社群名称不能为空'
+            };
+        }
+
+        if (updateData.name && updateData.name.length > 20) {
+            return {
+                success: false,
+                message: '社群名称不能超过20个字'
+            };
+        }
+
+        // 检查新名称是否与其他社群重复
+        if (updateData.name && updateData.name !== community.name) {
+            if (communities.some(c => c.name === updateData.name && c.id !== communityId)) {
+                return {
+                    success: false,
+                    message: '这个社群名已经存在了～'
+                };
+            }
+        }
+
+        // 更新社群信息
+        if (updateData.name) community.name = updateData.name.trim();
+        if (updateData.description) community.description = updateData.description.trim();
+        if (updateData.category) community.category = updateData.category;
+        community.updateTime = new Date().toLocaleString();
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(communities));
+
+        return {
+            success: true,
+            message: '社群信息已更新',
+            community: community
+        };
+    },
+
+    /**
      * 删除社群（仅创建者可删除）
      * @param {number} communityId - 社群ID
      * @returns {Object} {success: boolean, message: string}

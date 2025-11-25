@@ -1771,43 +1771,57 @@
     // ========== 社群功能 ==========
     // 加载首页社群列表
     function loadHomeCommunities() {
-        const communities = CommunityManager.getAllCommunities();
         const grid = document.getElementById('communitiesGrid');
-
         if (!grid) return;
 
-        if (communities.length === 0) {
+        try {
+            const communities = CommunityManager.getAllCommunities();
+
+            if (!communities || communities.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center py-12 text-gray-500 col-span-full">
+                        <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
+                        <p>暂无社群，快去创建一个吧～</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 显示最新的4个社群（倒序排列）
+            const featured = communities.slice(-4).reverse();
+
+            grid.innerHTML = featured.map((community, index) => `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" style="transition-delay: ${index * 0.1}s;">
+                    <div class="relative h-36">
+                        <img src="${community.avatar}" alt="${community.name}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">${community.name}</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> ${community.memberCount} 成员</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">${community.category}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <i class="fa fa-user-circle mr-1"></i>
+                            <span class="text-xs text-gray-500">创建者: ${community.creator}</span>
+                        </p>
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">${community.description}</p>
+                        <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom" onclick="joinCommunityFromHome(${community.id})">
+                            加入社群
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('加载社群失败:', error);
             grid.innerHTML = `
                 <div class="text-center py-12 text-gray-500 col-span-full">
-                    <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
-                    <p>暂无社群，快去创建一个吧～</p>
+                    <i class="fa fa-exclamation-circle text-4xl mb-4 opacity-50"></i>
+                    <p>加载社群失败，请刷新页面</p>
                 </div>
             `;
-            return;
         }
-
-        // 只显示前4个社群
-        const featured = communities.slice(0, 4);
-
-        grid.innerHTML = featured.map((community, index) => `
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover scroll-animate" style="transition-delay: ${index * 0.1}s;">
-                <div class="relative h-36">
-                    <img src="${community.avatar}" alt="${community.name}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <h3 class="absolute bottom-4 left-4 text-white font-bold text-xl">${community.name}</h3>
-                </div>
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> ${community.memberCount} 成员</span>
-                        <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">${community.category}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">${community.description}</p>
-                    <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom" onclick="joinCommunityFromHome(${community.id})">
-                        加入社群
-                    </button>
-                </div>
-            </div>
-        `).join('');
     }
 
     // 从首页加入社群
@@ -1829,8 +1843,16 @@
 
     // 页面加载时初始化社群
     window.addEventListener('DOMContentLoaded', () => {
-        loadHomeCommunities();
+        // 延迟加载社群，确保CommunityManager已初始化
+        setTimeout(() => {
+            loadHomeCommunities();
+        }, 100);
         updateActiveNav();
+    });
+
+    // 页面显示时也加载社群（处理标签页切换等情况）
+    window.addEventListener('pageshow', () => {
+        loadHomeCommunities();
     });
 </script>
 
