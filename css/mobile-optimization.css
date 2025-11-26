@@ -1,0 +1,282 @@
+/**
+ * Z+潮流社区 - 移动端交互优化样式
+ * 优化按钮大小、触摸反馈、字体大小等移动端体验
+ */
+
+/* 基础优化 */
+@media (max-width: 768px) {
+    /* 优化字体大小，确保在移动端可读性 */
+    html {
+        font-size: 16px;
+    }
+    
+    /* 优化按钮大小，确保在移动端易于点击 */
+    button,
+    .button,
+    .action-button,
+    .mobile-tab-btn,
+    .nav-item {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 16px;
+        font-size: 16px;
+    }
+    
+    /* 优化输入框大小，确保在移动端易于输入 */
+    input,
+    textarea,
+    select {
+        min-height: 44px;
+        padding: 10px 16px;
+        font-size: 16px;
+    }
+    
+    /* 优化图标大小，确保在移动端易于识别 */
+    .fa {
+        font-size: 18px;
+    }
+    
+    /* 优化卡片间距，确保在移动端有足够的点击区域 */
+    .card-hover,
+    .work-card,
+    .community-card {
+        margin-bottom: 16px;
+        padding: 16px;
+    }
+    
+    /* 优化导航栏按钮大小 */
+    .header-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    /* 优化底部导航栏图标和文字大小 */
+    .bottom-nav .nav-item i {
+        font-size: 24px;
+    }
+    
+    .bottom-nav .nav-item span {
+        font-size: 12px;
+    }
+    
+    /* 优化标签大小 */
+    .profile-tag {
+        padding: 8px 16px;
+        font-size: 14px;
+        margin: 4px;
+    }
+    
+    /* 优化动态卡片内容间距 */
+    .work-card .p-3 {
+        padding: 16px;
+    }
+    
+    /* 优化社群卡片内容间距 */
+    .community-card .p-4 {
+        padding: 16px;
+    }
+    
+    /* 优化模态框样式 */
+    .modal-panel,
+    .chat-panel {
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    /* 优化输入框组间距 */
+    .input-group {
+        margin-bottom: 20px;
+    }
+    
+    /* 优化登录容器内边距 */
+    .login-container {
+        padding: 32px 24px;
+    }
+    
+    /* 优化个人主页封面高度 */
+    .profile-cover {
+        height: 240px;
+    }
+    
+    /* 优化头像大小 */
+    .avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    /* 优化头像容器位置 */
+    .avatar-container {
+        bottom: -50px;
+    }
+    
+    /* 优化个人信息区上边距 */
+    .profile-info {
+        margin-top: 60px;
+    }
+    
+    /* 优化Tabs容器样式 */
+    .tabs {
+        padding: 0 8px;
+    }
+    
+    .tab {
+        padding: 16px 16px;
+        font-size: 14px;
+    }
+    
+    /* 优化内容区域网格间距 */
+    .grid.grid-cols-2.gap-4 {
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    /* 优化轮播容器高度 */
+    .carousel-container {
+        height: auto;
+        min-height: 200px;
+    }
+    
+    /* 优化轮播卡片内边距 */
+    .carousel-slide {
+        padding: 16px;
+    }
+    
+    /* 优化刷新指示器样式 */
+    #pullRefreshIndicator {
+        height: 60px;
+    }
+    
+    #pullRefreshIndicator .refresh-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    #pullRefreshIndicator .refresh-text {
+        font-size: 12px;
+    }
+}
+
+/* 触摸反馈优化 */
+button,
+.button,
+.action-button,
+.mobile-tab-btn,
+.nav-item,
+.card-hover,
+.work-card,
+.community-card,
+.profile-tag,
+.tab,
+.header-btn,
+.input-field {
+    /* 添加触摸反馈效果 */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+/* 按钮按下效果 */
+button:active,
+.button:active,
+.action-button:active,
+.mobile-tab-btn:active,
+.nav-item:active,
+.header-btn:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* 卡片点击效果 */
+.card-hover:active,
+.work-card:active,
+.community-card:active {
+    transform: translateY(-4px) scale(0.98);
+}
+
+/* 标签点击效果 */
+.profile-tag:active {
+    transform: scale(0.95);
+}
+
+/* Tab点击效果 */
+.tab:active {
+    transform: scale(0.98);
+}
+
+/* 输入框焦点效果优化 */
+.input-field:focus {
+    border-color: #FF6B35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+/* 滚动条优化 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* 优化模态框动画 */
+.modal-panel,
+.chat-panel,
+.share-panel {
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.overlay,
+.modal-overlay,
+.share-mask {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 优化页面切换动画 */
+.page-transition {
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* 优化滚动动画 */
+.scroll-animate {
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* 优化渐变背景动画性能 */
+.gradient-bg,
+.profile-cover,
+.login-container {
+    transform: translateZ(0);
+    will-change: background-position;
+}
+
+/* 优化浮动动画性能 */
+.sticker,
+.logo {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* 优化按钮动画性能 */
+.action-button,
+.header-btn {
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+}
+
+/* 优化卡片动画性能 */
+.card-hover,
+.work-card,
+.community-card {
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+}

@@ -7,12 +7,17 @@
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/mobile-optimization.css" rel="stylesheet">
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
     <script src="js/postsManager.js"></script>
     <!-- 引入社群管理模块 -->
     <script src="js/communityManager.js"></script>
+    <!-- 引入手势管理模块 -->
+    <script src="js/gestureManager.js"></script>
+    <!-- 引入更新管理模块 -->
+    <script src="js/updateManager.js"></script>
 
     <!-- 配置Tailwind CSS -->
     <script>
@@ -1341,7 +1346,110 @@
 
     // 设置
     function showSettings() {
-        alert('设置功能开发中...');
+        try {
+            // 创建设置面板
+            const settingsPanel = document.createElement('div');
+            settingsPanel.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+            `;
+            
+            // 获取当前版本
+            let currentVersion = '1.0.0';
+            let lastCheckTime = '';
+            
+            // 检查UpdateManager是否存在
+            if (typeof UpdateManager !== 'undefined') {
+                currentVersion = UpdateManager.getCurrentVersion();
+                lastCheckTime = UpdateManager.getLastCheckTime();
+            }
+            
+            settingsPanel.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 style="margin: 0; font-size: 20px; font-weight: bold; color: #1E293B;">设置</h3>
+                    <button id="closeSettingsBtn" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer;">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #1E293B;">关于应用</h4>
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
+                        <p style="margin: 0 0 8px; color: #64748b;">应用名称：Z+潮流社区</p>
+                        <p style="margin: 0 0 8px; color: #64748b;">当前版本：${currentVersion}</p>
+                        ${lastCheckTime ? `<p style="margin: 0; color: #94a3b8; font-size: 14px;">上次检查：${new Date(lastCheckTime).toLocaleString()}</p>` : ''}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <button id="checkUpdateBtn" style="width: 100%; padding: 16px; border: none; border-radius: 8px; background: linear-gradient(135deg, #FF6B35, #FF7DAB); color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <i class="fa fa-refresh mr-2"></i>检查更新
+                    </button>
+                </div>
+                
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                    <button id="logoutBtn" style="width: 100%; padding: 16px; border: 1px solid #ef4444; border-radius: 8px; background: white; color: #ef4444; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <i class="fa fa-sign-out mr-2"></i>退出登录
+                    </button>
+                </div>
+            `;
+            
+            // 创建遮罩层
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9999;
+            `;
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(settingsPanel);
+            
+            // 关闭按钮事件
+            document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(settingsPanel);
+            });
+            
+            // 检查更新按钮事件
+            document.getElementById('checkUpdateBtn').addEventListener('click', async () => {
+                if (typeof UpdateManager !== 'undefined') {
+                    await UpdateManager.checkAndPromptUpdate();
+                } else {
+                    alert('更新功能正在开发中...');
+                }
+            });
+            
+            // 退出登录按钮事件
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (confirm('确定要退出登录吗？')) {
+                    UserManager.logout();
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // 点击遮罩层关闭
+            overlay.addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                document.body.removeChild(settingsPanel);
+            });
+        } catch (error) {
+            console.error('设置面板错误:', error);
+            alert('设置功能出现错误，请刷新页面重试');
+        }
     }
 
     // 切换Tab
