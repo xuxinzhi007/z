@@ -9,6 +9,7 @@ const UpdateManager = {
         // GitHub仓库信息
         github: {
             repo: 'https://github.com/xuxinzhi007/z', // 替换为你的GitHub仓库地址
+            branch: 'main', // GitHub默认分支通常是main而不是master
             updatePath: 'updates', // 更新包存储路径
             versionFile: 'version.json' // 版本文件名称
         },
@@ -68,7 +69,8 @@ const UpdateManager = {
             const repoParts = repoUrl.replace('https://github.com/', '').split('/');
             const username = repoParts[0];
             const repoName = repoParts[1];
-            const versionUrl = `https://raw.githubusercontent.com/${username}/${repoName}/master/${this.config.github.updatePath}/${this.config.github.versionFile}`;
+            const branch = this.config.github.branch;
+            const versionUrl = `https://raw.githubusercontent.com/${username}/${repoName}/${branch}/${this.config.github.updatePath}/${this.config.github.versionFile}`;
             
             // 发送请求获取最新版本信息
             const response = await fetch(versionUrl);
@@ -132,7 +134,13 @@ const UpdateManager = {
             this.showLoading('下载更新中...');
             
             // 构建更新包URL
-            const updateUrl = `${this.config.github.repo}/raw/master/${this.config.github.updatePath}/${updateInfo.packageName}`;
+            // 正确的GitHub raw URL格式：https://raw.githubusercontent.com/username/repo/branch/path/to/file
+            const repoUrl = this.config.github.repo;
+            const repoParts = repoUrl.replace('https://github.com/', '').split('/');
+            const username = repoParts[0];
+            const repoName = repoParts[1];
+            const branch = this.config.github.branch;
+            const updateUrl = `https://raw.githubusercontent.com/${username}/${repoName}/${branch}/${this.config.github.updatePath}/${updateInfo.packageName}`;
             
             // 发送请求下载更新包
             const response = await fetch(updateUrl);
