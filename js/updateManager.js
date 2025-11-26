@@ -73,9 +73,27 @@ const UpdateManager = {
             const versionUrl = `https://raw.githubusercontent.com/${username}/${repoName}/${branch}/${this.config.github.updatePath}/${this.config.github.versionFile}`;
             
             // 发送请求获取最新版本信息
-            const response = await fetch(versionUrl);
+            console.log('检查更新URL:', versionUrl);
+            
+            const response = await fetch(versionUrl, {
+                method: 'GET',
+                mode: 'cors', // 确保使用CORS模式
+                headers: {
+                    'Accept': 'application/json'
+                },
+                cache: 'no-cache' // 禁用缓存
+            });
+            
+            console.log('响应状态:', response.status);
+            console.log('响应状态文本:', response.statusText);
+            
             if (!response.ok) {
-                throw new Error('获取版本信息失败');
+                // 提供更详细的错误信息
+                let errorMsg = `获取版本信息失败 (${response.status} ${response.statusText})`;
+                if (response.status === 404) {
+                    errorMsg += '\n\n但该URL在浏览器中可以直接访问，请检查：\n1. 网络连接\n2. 浏览器CORS设置\n3. 本地服务器配置\n\n建议：尝试在浏览器中直接访问该URL！';
+                }
+                throw new Error(errorMsg);
             }
 
             const latestVersion = await response.json();
