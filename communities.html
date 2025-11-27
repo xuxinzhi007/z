@@ -8,60 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入社群管理模块 -->
     <script src="js/communityManager.js"></script>
     <!-- 引入手势管理模块 -->
     <script src="js/gestureManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',
-                        secondary: '#40BFFF',
-                        accent: '#FF7DAB',
-                        yellow: '#FFD166',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            overflow-x: hidden;
-        }
-
-        .transition-custom {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
-        }
-
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* 社群卡片 */
+        /* 页面特定样式 */
         .community-card {
-            background: white;
+            /* 基础样式在 theme-base.css 中已有部分定义，此处保留特定业务样式 */
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -89,31 +55,22 @@
             flex: 1;
         }
 
+        /* 标题和文字适配 */
         .community-title h3 {
             font-size: 18px;
             font-weight: 600;
             margin: 0 0 4px;
-            color: #1E293B;
+            /* 颜色由 Tailwind dark:text-white 控制 */
         }
 
         .community-title p {
             font-size: 13px;
-            color: #94a3b8;
+            /* 颜色由 Tailwind dark:text-gray-400 控制 */
             margin: 0;
         }
 
-        .community-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
         .community-description {
-            color: #64748b;
+            /* 颜色由 Tailwind dark:text-gray-400 控制 */
             font-size: 14px;
             margin-bottom: 12px;
             line-height: 1.5;
@@ -125,6 +82,11 @@
             margin-bottom: 16px;
             padding-bottom: 16px;
             border-bottom: 1px solid #e2e8f0;
+        }
+        
+        /* 暗黑模式分割线 */
+        .dark .community-stats {
+            border-bottom-color: rgba(255, 255, 255, 0.1);
         }
 
         .stat {
@@ -268,9 +230,15 @@
     </style>
 </head>
 
-<body class="bg-light text-dark antialiased">
+<body class="bg-light text-dark dark:bg-dark dark:text-gray-100 antialiased transition-colors duration-300">
+<!-- 背景光斑装饰 (暗黑模式专属) -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block">
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute -bottom-32 right-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style="animation-delay: 2s"></div>
+</div>
+
 <!-- 导航栏 -->
-<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white shadow-sm py-4">
+<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white/90 dark:bg-dark/90 backdrop-blur shadow-sm dark:shadow-none dark:border-b dark:border-white/5 py-4 transition-all">
     <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <!-- 返回按钮（移动端） -->
         <a href="index.html" class="md:hidden flex items-center text-primary hover:text-secondary transition-custom">
@@ -286,51 +254,64 @@
         </a>
 
         <!-- 标题 -->
-        <h1 class="text-lg md:text-xl font-bold">社群广场</h1>
+        <h1 class="text-lg md:text-xl font-bold dark:text-white">社群广场</h1>
 
-        <!-- 返回按钮（桌面端） -->
-        <a href="index.html" class="hidden md:flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
-            <i class="fa fa-arrow-left"></i>
-            <span>返回</span>
-        </a>
+        <!-- 右侧操作区 -->
+        <div class="flex items-center space-x-4">
+            <!-- 主题切换 (桌面端) -->
+            <button id="theme-toggle-desktop" class="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 text-dark dark:text-yellow transition-custom hover:shadow-lg">
+                <i class="fa fa-moon-o text-lg"></i>
+            </button>
+            
+            <!-- 返回按钮（桌面端） -->
+            <a href="index.html" class="hidden md:flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
+                <i class="fa fa-arrow-left"></i>
+                <span>返回</span>
+            </a>
+            
+            <!-- 主题切换 (移动端) -->
+            <button id="theme-toggle-mobile" class="md:hidden text-dark dark:text-yellow hover:text-primary transition-custom">
+                <i class="fa fa-moon-o text-xl"></i>
+            </button>
+        </div>
     </div>
 </header>
 
-<main class="pt-24 pb-20">
+<main class="pt-24 pb-20 relative z-10">
     <!-- 社群广场 -->
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-transparent">
         <div class="container mx-auto px-4 md:px-6 max-w-4xl">
             <!-- 标题区域 -->
-            <div class="text-center mb-12">
-                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+            <div class="text-center mb-12 scroll-animate">
+                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     发现<span class="text-primary">社群</span>
                 </h1>
-                <p class="text-gray-600 text-lg">
+                <p class="text-gray-600 dark:text-gray-300 text-lg">
                     找到志同道合的潮流爱好者，一起分享和讨论
                 </p>
             </div>
 
             <!-- 分类过滤 -->
-            <div class="category-filter">
-                <button class="category-btn active" onclick="filterByCategory('全部')">
+            <div class="category-filter scroll-animate" style="transition-delay: 100ms;">
+                <button class="category-btn active dark:bg-slate-700 dark:text-white dark:border-slate-600" onclick="filterByCategory('全部')">
                     ✨ 全部
                 </button>
-                <button class="category-btn" onclick="filterByCategory('游戏')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('游戏')">
                     🎮 游戏
                 </button>
-                <button class="category-btn" onclick="filterByCategory('穿搭')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('穿搭')">
                     👗 穿搭
                 </button>
-                <button class="category-btn" onclick="filterByCategory('音乐')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('音乐')">
                     🎵 音乐
                 </button>
-                <button class="category-btn" onclick="filterByCategory('美食')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('美食')">
                     🍔 美食
                 </button>
-                <button class="category-btn" onclick="filterByCategory('摄影')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('摄影')">
                     📸 摄影
                 </button>
-                <button class="category-btn" onclick="filterByCategory('其他')">
+                <button class="category-btn dark:bg-slate-800 dark:text-gray-300 dark:border-slate-700 dark:hover:border-primary" onclick="filterByCategory('其他')">
                     🌟 其他
                 </button>
             </div>
@@ -347,7 +328,7 @@
 </main>
 
 <!-- 底部导航 -->
-<nav class="bottom-nav md:hidden">
+<nav class="bottom-nav md:hidden dark:bg-dark-card dark:border-gray-700">
     <a href="index.html" class="nav-item" data-page="home">
         <i class="fa fa-home"></i>
         <span>首页</span>
@@ -387,36 +368,37 @@
         const currentUser = UserManager.getCurrentUsername();
         const isMember = CommunityManager.isUserInCommunity(community.id, currentUser);
 
+        // 使用 glass 类和 dark: 类适配主题
         return `
-            <div class="community-card card-hover">
+            <div class="community-card card-hover glass dark:bg-slate-800/60 dark:border dark:border-white/10 dark:shadow-lg backdrop-blur-md">
                 <div class="community-header">
-                    <img src="${community.avatar}" alt="${community.name}" class="community-avatar">
+                    <img src="${community.avatar}" alt="${community.name}" class="community-avatar border dark:border-white/10">
                     <div class="community-title">
-                        <h3>${community.name}</h3>
-                        <p>${getCategoryIcon(community.category)} ${community.category}</p>
+                        <h3 class="text-dark dark:text-white">${community.name}</h3>
+                        <p class="text-gray-500 dark:text-gray-400">${getCategoryIcon(community.category)} ${community.category}</p>
                     </div>
                 </div>
 
-                <p class="community-description">${community.description}</p>
+                <p class="community-description text-gray-600 dark:text-gray-300">${community.description}</p>
 
-                <div class="community-stats">
+                <div class="community-stats border-gray-100 dark:border-white/10">
                     <div class="stat">
-                        <div class="stat-value">${community.memberCount}</div>
-                        <div class="stat-label">成员</div>
+                        <div class="stat-value text-primary">${community.memberCount}</div>
+                        <div class="stat-label text-gray-400 dark:text-gray-500">成员</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">${community.posts}</div>
-                        <div class="stat-label">动态</div>
+                        <div class="stat-value text-primary">${community.posts}</div>
+                        <div class="stat-label text-gray-400 dark:text-gray-500">动态</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">${community.creator === currentUser ? '创建者' : '浏览'}</div>
-                        <div class="stat-label">身份</div>
+                        <div class="stat-value text-primary">${community.creator === currentUser ? '创建者' : '浏览'}</div>
+                        <div class="stat-label text-gray-400 dark:text-gray-500">身份</div>
                     </div>
                 </div>
 
                 <div class="community-action">
                     ${isMember ? `
-                        <button class="action-btn joined" onclick="leaveCommunity(${community.id})">
+                        <button class="action-btn joined dark:bg-slate-700 dark:text-gray-300 dark:border-slate-600 dark:hover:bg-slate-600" onclick="leaveCommunity(${community.id})">
                             <i class="fa fa-check mr-1"></i>已加入
                         </button>
                     ` : `
@@ -436,7 +418,7 @@
 
         if (communities.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-12 text-gray-500 col-span-full">
+                <div class="text-center py-12 text-gray-500 dark:text-gray-400 col-span-full">
                     <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
                     <p>暂无社群，快去创建一个吧～</p>
                 </div>
@@ -464,6 +446,16 @@
         filtered.sort((a, b) => b.memberCount - a.memberCount);
 
         container.innerHTML = filtered.map(community => createCommunityCard(community)).join('');
+        
+        // 触发交错动画 (手动调用 theme-core.js 的增强器)
+        if (window.ZPlus && window.ZPlus.AnimationEnhancer) {
+            window.ZPlus.AnimationEnhancer.initStagger();
+        }
+        
+        // 绑定 3D Tilt
+        if (window.ZPlus && window.ZPlus.TiltEngine) {
+            window.ZPlus.TiltEngine.init();
+        }
     }
 
     // 按分类过滤

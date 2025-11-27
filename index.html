@@ -9,6 +9,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
@@ -18,193 +23,11 @@
     <script src="js/communityManager.js"></script>
     <!-- 引入手势管理模块 -->
     <script src="js/gestureManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        // 主题初始化脚本 - 放在最前面避免闪烁
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class', // 开启手动切换暗黑模式
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',    // 活力橙
-                        secondary: '#40BFFF',  // 天空蓝
-                        accent: '#FF7DAB',     // 嫩粉
-                        yellow: '#FFD166',     // 亮黄
-                        dark: '#0F172A',       // 深色背景 (Slate 900)
-                        'dark-card': '#1E293B', // 深色卡片 (Slate 800)
-                        light: '#F8FAFC',       // 浅色
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bounce-slow': 'bounce 3s infinite',
-                        'blob': 'blob 7s infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        },
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
-                        }
-                    }
-                },
-            }
-        }
-    </script>
-
-    <!-- 自定义工具类 -->
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            /* 霓虹文字光效 */
-            .text-glow {
-                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
-            }
-            .transition-custom {
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-            }
-            .gradient-mask {
-                mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-                -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            }
-            
-            /* 毛玻璃特效 */
-            .glass {
-                @apply bg-white/70 backdrop-blur-md border border-white/20;
-            }
-            .glass-dark {
-                @apply dark:bg-slate-800/60 dark:backdrop-blur-md dark:border-white/10;
-            }
-            
-            /* 轮播样式 */
-            .carousel-container {
-                overflow: hidden;
-                height: 100%;
-            }
-            .carousel-track {
-                display: flex;
-                height: 100%;
-                transition: transform 0.5s ease;
-            }
-            .carousel-slide {
-                flex-shrink: 0;
-                width: 100%;
-                height: 100%;
-            }
-        }
-    </style>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        /* 基础样式 */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* 动画性能优化 */
-        .will-change-transform {
-            will-change: transform;
-        }
-
-        /* 页面切换动画容器 */
-        .page-transition {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        .page-transition.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* 滚动触发动画 */
-        .scroll-animate {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-
-        .scroll-animate.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* 渐变背景 */
-        .gradient-bg {
-            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
-        }
-
-        /* 卡片悬停效果 */
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        /* 导航栏滚动效果 */
-        .navbar-scrolled {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Love链接特殊动画效果 */
-        a[href*="love"] .fa-heart {
-            display: inline-block;
-            animation: heartbeat 1.5s ease-in-out infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% {
-                transform: scale(1);
-            }
-            10%, 30% {
-                transform: scale(0.9);
-            }
-            20%, 40%, 50%, 60%, 70%, 80% {
-                transform: scale(1);
-            }
-            25%, 45% {
-                transform: scale(1.1);
-            }
-        }
-
+        /* 页面特定样式 */
         /* Love卡片渐变动画 */
         .love-card-bg {
             background: linear-gradient(135deg, rgba(255, 125, 171, 0.1) 0%, rgba(255, 182, 193, 0.1) 50%, rgba(255, 125, 171, 0.1) 100%);
@@ -243,13 +66,6 @@
 
         .page-link:hover::before {
             left: 100%;
-        }
-
-        /* 性能优化：减少重绘 */
-        .optimize-animation {
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            perspective: 1000px;
         }
 
         /* 移动端优化 */
@@ -1184,49 +1000,10 @@
 
 <!-- JavaScript -->
 <script>
-    // ========== 主题切换功能 ==========
-    const themeToggleDesktop = document.getElementById('theme-toggle-desktop');
-    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-    
-    function toggleTheme() {
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.theme = 'light';
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.theme = 'dark';
-        }
-        updateThemeToggleIcons();
-    }
-    
-    function updateThemeToggleIcons() {
-        const isDark = document.documentElement.classList.contains('dark');
-        const iconClass = isDark ? 'fa-sun-o' : 'fa-moon-o';
-        const activeClass = isDark ? 'text-yellow' : 'text-dark';
-        
-        // 桌面端
-        if (themeToggleDesktop) {
-            const icon = themeToggleDesktop.querySelector('i');
-            icon.className = `fa ${iconClass} text-lg`;
-            if (isDark) {
-                themeToggleDesktop.classList.add('bg-slate-700', 'text-yellow');
-                themeToggleDesktop.classList.remove('bg-gray-100', 'text-dark');
-            } else {
-                themeToggleDesktop.classList.add('bg-gray-100', 'text-dark');
-                themeToggleDesktop.classList.remove('bg-slate-700', 'text-yellow');
-            }
-        }
-        
-        // 移动端
-        if (themeToggleMobile) {
-            const icon = themeToggleMobile.querySelector('i');
-            icon.className = `fa ${iconClass} text-xl`;
-            themeToggleMobile.className = `md:hidden transition-custom mr-2 ${isDark ? 'text-yellow' : 'text-dark'}`;
-        }
-    }
-    
-    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
-    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
+    // ========== 主题切换功能 (保留旧的变量声明以防报错，但逻辑已由ThemeManager接管) ==========
+    // 这里的旧逻辑可以完全删除，前提是 index.html 中的 onclick 已移除或者更新。
+    // 由于 theme-core.js 会自动绑定 id 为 theme-toggle-desktop 的元素，所以下面的代码是多余的。
+
 
 
     // 导航栏滚动效果
@@ -1409,34 +1186,8 @@
     });
 
     // 性能优化：使用Intersection Observer进行懒加载动画
-    if ('IntersectionObserver' in window) {
-        const animationObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    // 观察后移除监听以提升性能
-                    animationObserver.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.15, // 稍微增加阈值，避免过早触发
-            rootMargin: '0px 0px -50px 0px'
-        });
+    // (逻辑已移至 theme-core.js 的 AnimationEnhancer，此处代码已冗余)
 
-        // 重新绑定观察器
-        scrollAnimations.forEach(element => {
-            animationObserver.observe(element);
-        });
-    }
-    
-    // 扩展 Scroll Animate 逻辑：处理 grid 子元素的交错显示
-    const staggerItems = document.querySelectorAll('.grid > div, .grid > a');
-    staggerItems.forEach((item, index) => {
-        // 计算每一行的大致位置，实现按行交错
-        const delay = (index % 3) * 100; // 每行3个为例
-        item.classList.add('scroll-animate');
-        item.style.transitionDelay = `${delay}ms`;
-    });
 
     // 性能优化：节流滚动事件
     let scrollTimeout;
@@ -1751,55 +1502,15 @@
         }, false);
     }
 
-    // ========== 3D Tilt 效果 (高级交互) ==========
-    function init3DTilt() {
-        // 只在非移动端启用
-        if (window.innerWidth > 768) {
-            const cards = document.querySelectorAll('.card-hover, .tilt-element');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', handleTilt);
-                card.addEventListener('mouseleave', resetTilt);
-            });
-        }
-    }
-
-    function handleTilt(e) {
-        const card = this;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        // 计算旋转角度 (限制最大角度)
-        const rotateX = ((y - centerY) / centerY) * -5; 
-        const rotateY = ((x - centerX) / centerX) * 5;
-        
-        // 应用 3D 变换
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-        // 去掉过渡以获得实时响应
-        card.style.transition = 'none';
-    }
-
-    function resetTilt() {
-        this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-        this.style.transition = 'transform 0.5s ease';
-    }
-
-    // ========== 滚动视差背景 ==========
-    function handleParallax() {
-        const blobs = document.querySelectorAll('.animate-blob');
-        if (blobs.length === 0) return;
-        
-        const scrolled = window.scrollY;
-        blobs.forEach((blob, index) => {
-            // 不同层级不同速度
-            const speed = 0.05 * (index + 1);
-            const yPos = scrolled * speed;
-            blob.style.transform = `translateY(${yPos}px)`;
-        });
-    }
+    // ========== 废弃代码清理 (逻辑已移至 theme-core.js) ==========
+    // theme-core.js 包含了:
+    // - init3DTilt / handleTilt / resetTilt
+    // - handleParallax
+    // - toggleTheme / updateThemeToggleIcons
+    // - AnimationEnhancer (滚动动画观察者)
+    
+    // 性能优化：节流滚动事件
+    let scrollTimeout;
 
     // ========== 页面初始化 ==========
     window.addEventListener('DOMContentLoaded', () => {

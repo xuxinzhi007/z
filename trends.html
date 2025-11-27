@@ -8,62 +8,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
     <script src="js/postsManager.js"></script>
     <!-- 引入手势管理模块 -->
     <script src="js/gestureManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',
-                        secondary: '#40BFFF',
-                        accent: '#FF7DAB',
-                        yellow: '#FFD166',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                },
-            }
-        }
-    </script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            overflow-x: hidden;
-        }
-
-        .transition-custom {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
-        }
-
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
+        /* 保留页面特定样式 */
         .scroll-animate {
+            /* theme-base.css 已定义，此处可保留或删除，不冲突 */
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -379,7 +341,7 @@
 </main>
 
 <!-- 底部导航 -->
-<nav class="bottom-nav md:hidden">
+<nav class="bottom-nav md:hidden dark:bg-dark-card dark:border-gray-700">
     <a href="index.html" class="nav-item" data-page="home">
         <i class="fa fa-home"></i>
         <span>首页</span>
@@ -395,24 +357,6 @@
 </nav>
 
 <script>
-    // 滚动动画
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.scroll-animate').forEach(el => {
-        observer.observe(el);
-    });
-
     // 自动激活当前页面的导航项
     function updateActiveNav() {
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -429,6 +373,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         updateActiveNav();
+        // 动画增强器会自动处理 .scroll-animate
     });
 </script>
 </body>

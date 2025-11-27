@@ -8,6 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
@@ -18,28 +23,103 @@
     <script src="js/gestureManager.js"></script>
     <!-- 引入更新管理模块 -->
     <script src="js/updateManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',
-                        secondary: '#40BFFF',
-                        accent: '#FF7DAB',
-                        yellow: '#FFD166',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        * {
-            -webkit-tap-highlight-color: transparent;
+        /* 暗黑模式适配 */
+        .dark .profile-cover {
+            filter: brightness(0.8);
+        }
+        
+        .dark .avatar {
+            border-color: #1E293B;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        .dark .header-btn {
+            background: rgba(30, 41, 59, 0.8);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .dark .profile-info h1 {
+            color: white;
+        }
+        
+        .dark .profile-info p {
+            color: #94A3B8;
+        }
+        
+        .dark .stat-item .text-gray-500 {
+            color: #94A3B8;
+        }
+        
+        .dark .tabs-container {
+            background: #1E293B;
+            border-bottom-color: #334155;
+        }
+        
+        .dark .tab {
+            color: #94A3B8;
+        }
+        
+        .dark .tab:hover, .dark .tab.active {
+            color: #FF6B35;
+        }
+        
+        .dark .work-card, 
+        .dark .community-card {
+            background: #1E293B;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .dark .work-card h3,
+        .dark .community-info h3 {
+            color: white;
+        }
+        
+        .dark .modal-panel,
+        .dark .chat-panel {
+            background: #1E293B;
+            color: white;
+        }
+        
+        .dark .modal-panel h2,
+        .dark .chat-panel h3 {
+            color: white;
+        }
+        
+        .dark input, 
+        .dark textarea, 
+        .dark select {
+            background: #0F172A;
+            border-color: #334155;
+            color: white;
+        }
+        
+        .dark .action-btn.following {
+            background: #334155;
+            color: #94A3B8;
+            border-color: #475569;
+        }
+        
+        .dark .bottom-nav {
+            background: #1E293B !important;
+            border-top-color: #334155 !important;
+        }
+        
+        .dark .nav-item {
+            color: #94A3B8 !important;
+        }
+        
+        .dark .nav-item.active {
+            color: #FF6B35 !important;
+        }
+
+        .dark .action-button.message,
+        .dark .action-button.gift {
+            background: transparent;
         }
 
         body {
@@ -530,10 +610,15 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-light text-dark dark:bg-dark dark:text-gray-100 antialiased transition-colors duration-300">
 <!-- 返回按钮 -->
 <button class="header-btn back" onclick="goBack()">
     <i class="fa fa-arrow-left"></i>
+</button>
+
+<!-- 主题切换 -->
+<button id="theme-toggle-desktop" class="header-btn" style="right: 70px;" onclick="ZPlus.ThemeManager.toggle()">
+    <i class="fa fa-moon-o"></i>
 </button>
 
 <!-- 设置按钮 -->
@@ -898,6 +983,11 @@
 <script>
     // 页面加载时检查登录状态并加载用户信息
     window.addEventListener('DOMContentLoaded', () => {
+        // 主题图标更新
+        if (window.ZPlus && window.ZPlus.ThemeManager) {
+            ZPlus.ThemeManager.updateToggleIcons();
+        }
+
         // 检查是否登录
         if (!UserManager.isLoggedIn()) {
             alert('请先登录～');
@@ -1005,13 +1095,13 @@
         }
 
         container.innerHTML = userPosts.map(post => `
-            <div class="bg-white rounded-xl p-4 shadow-sm">
+            <div class="bg-white dark:bg-slate-800 dark:border dark:border-white/10 rounded-xl p-4 shadow-sm">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
-                        <img src="${UserManager.getCurrentUser().avatar}" alt="头像" class="w-10 h-10 rounded-full">
+                        <img src="${UserManager.getCurrentUser().avatar}" alt="头像" class="w-10 h-10 rounded-full border dark:border-white/10">
                         <div>
-                            <h4 class="font-bold text-sm">${post.username}</h4>
-                            <p class="text-xs text-gray-500">${post.createTime}</p>
+                            <h4 class="font-bold text-sm dark:text-white">${post.username}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${post.createTime}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -1032,7 +1122,7 @@
                     </div>
                 ` : ''}
                 
-                <p class="text-sm mb-3">${post.content}</p>
+                <p class="text-sm mb-3 dark:text-gray-300">${post.content}</p>
                 
                 ${post.images.length > 0 ? `
                     <div class="grid gap-2 mb-3" style="grid-template-columns: repeat(${Math.min(post.images.length, 3)}, 1fr);">
@@ -1042,7 +1132,7 @@
                     </div>
                 ` : ''}
                 
-                <div class="flex items-center gap-6 text-sm text-gray-500">
+                <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
                     <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>${post.likes.length}</button>
                     <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>${post.comments.length}</button>
                     <button class="hover:text-primary"><i class="fa fa-star-o mr-1"></i>${post.collects.length}</button>

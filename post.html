@@ -8,36 +8,88 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
     <script src="js/postsManager.js"></script>
     <!-- 引入手势管理模块 -->
     <script src="js/gestureManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',
-                        secondary: '#40BFFF',
-                        accent: '#FF7DAB',
-                        yellow: '#FFD166',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        * {
-            -webkit-tap-highlight-color: transparent;
+        /* 页面特定样式适配暗黑模式 */
+        /* ... 原有样式保留，但在 theme-base.css 中已有部分覆盖 ... */
+        
+        .dark .back-btn {
+            background: rgba(30, 41, 59, 0.9);
+            color: white;
         }
 
+        .user-card, .content-input, .image-upload, .tags-input, .info-box {
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        
+        .dark .user-card, 
+        .dark .content-input, 
+        .dark .image-upload, 
+        .dark .tags-input, 
+        .dark .info-box {
+            background: #1E293B; /* slate-800 */
+            color: #E2E8F0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dark .content-textarea,
+        .dark .tag-input-field {
+            background: #0F172A; /* slate-900 */
+            border-color: #334155;
+            color: white;
+        }
+        
+        .dark .upload-area {
+            border-color: #334155;
+        }
+        
+        .dark .upload-area:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+        
+        .dark .user-info h3 {
+            color: white;
+        }
+        
+        .dark .tags-label {
+            color: #E2E8F0;
+        }
+        
+        .dark .info-box {
+            border-left-color: #40BFFF;
+            background: rgba(64, 191, 255, 0.1);
+        }
+        
+        .dark .info-box p {
+            color: #94A3B8;
+        }
+
+        /* 底部导航适配 */
+        .dark .bottom-nav {
+            background: #1E293B !important;
+            border-top-color: #334155 !important;
+        }
+        
+        .dark .nav-item {
+            color: #94A3B8 !important;
+        }
+        
+        .dark .nav-item.active {
+            color: #FF6B35 !important;
+        }
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background: #f8fafc;
@@ -619,14 +671,19 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-light text-dark dark:bg-dark dark:text-gray-100 antialiased transition-colors duration-300">
 <!-- 返回按钮 -->
 <button class="back-btn" onclick="goBack()">
     <i class="fa fa-arrow-left"></i>
 </button>
 
+<!-- 主题切换 (浮动在左上角附近) -->
+<button id="theme-toggle-desktop" class="back-btn" style="left: 70px;" onclick="ZPlus.ThemeManager.toggle()">
+    <i class="fa fa-moon-o"></i>
+</button>
+
 <!-- 发布按钮 -->
-<button class="publish-btn" id="publishBtn" onclick="publishPost()">
+<button class="publish-btn shadow-lg" id="publishBtn" onclick="publishPost()">
     发布
 </button>
 
@@ -1003,5 +1060,15 @@
         <span>我的</span>
     </a>
 </nav>
+
+<script>
+    // 页面加载初始化
+    window.addEventListener('DOMContentLoaded', () => {
+        // 主题图标更新
+        if (window.ZPlus && window.ZPlus.ThemeManager) {
+            ZPlus.ThemeManager.updateToggleIcons();
+        }
+    });
+</script>
 </body>
 </html>

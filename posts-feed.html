@@ -7,69 +7,23 @@
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
     <!-- 引入用户管理模块 -->
     <script src="js/userManager.js"></script>
     <!-- 引入动态管理模块 -->
     <script src="js/postsManager.js"></script>
-
-    <!-- 配置Tailwind CSS -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF6B35',
-                        secondary: '#40BFFF',
-                        accent: '#FF7DAB',
-                        yellow: '#FFD166',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                },
-            }
-        }
-    </script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            overflow-x: hidden;
-        }
-
-        .transition-custom {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%);
-        }
-
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .scroll-animate {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-
-        .scroll-animate.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        /* 页面特定样式 */
+        /* 保留底部导航样式 */
+    </style>
 
         /* 底部导航 */
         .bottom-nav {
@@ -126,9 +80,15 @@
     </style>
 </head>
 
-<body class="bg-light text-dark antialiased">
+<body class="bg-light text-dark dark:bg-dark dark:text-gray-100 antialiased transition-colors duration-300">
+<!-- 背景光斑装饰 -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block">
+    <div class="absolute top-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style="animation-delay: 2s"></div>
+</div>
+
 <!-- 导航栏 -->
-<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white shadow-sm py-4">
+<header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white/90 dark:bg-dark/90 backdrop-blur shadow-sm dark:shadow-none dark:border-b dark:border-white/5 py-4 transition-all">
     <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <!-- Logo -->
         <a href="index.html" class="flex items-center space-x-2">
@@ -139,26 +99,39 @@
         </a>
 
         <!-- 标题 -->
-        <h1 class="text-xl font-bold">动态列表</h1>
+        <h1 class="text-xl font-bold dark:text-white">动态列表</h1>
 
-        <!-- 返回按钮 -->
-        <a href="index.html" class="flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
-            <i class="fa fa-arrow-left"></i>
-            <span class="hidden sm:inline">返回</span>
-        </a>
+        <!-- 右侧操作区 -->
+        <div class="flex items-center space-x-4">
+            <!-- 主题切换 (桌面端) -->
+            <button id="theme-toggle-desktop" class="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 text-dark dark:text-yellow transition-custom hover:shadow-lg">
+                <i class="fa fa-moon-o text-lg"></i>
+            </button>
+
+            <!-- 返回按钮 -->
+            <a href="index.html" class="flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
+                <i class="fa fa-arrow-left"></i>
+                <span class="hidden sm:inline">返回</span>
+            </a>
+            
+            <!-- 主题切换 (移动端) -->
+            <button id="theme-toggle-mobile" class="md:hidden text-dark dark:text-yellow hover:text-primary transition-custom">
+                <i class="fa fa-moon-o text-xl"></i>
+            </button>
+        </div>
     </div>
 </header>
 
-<main class="pt-24 pb-20">
+<main class="pt-24 pb-20 relative z-10">
     <!-- 动态列表区 -->
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-transparent">
         <div class="container mx-auto px-4 md:px-6 max-w-2xl">
             <!-- 标题区域 -->
             <div class="text-center mb-12 scroll-animate">
-                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     潮流<span class="text-primary">动态</span>
                 </h1>
-                <p class="text-gray-600 text-lg">
+                <p class="text-gray-600 dark:text-gray-300 text-lg">
                     查看所有用户分享的潮流动态，发现更多有趣的内容
                 </p>
             </div>
@@ -183,7 +156,7 @@
 </main>
 
 <!-- 底部导航 -->
-<nav class="bottom-nav md:hidden">
+<nav class="bottom-nav md:hidden dark:bg-dark-card dark:border-gray-700">
     <a href="index.html" class="nav-item" data-page="home">
         <i class="fa fa-home"></i>
         <span>首页</span>
@@ -228,14 +201,14 @@
         const isCollected = UserManager.isLoggedIn() && PostsManager.isCollectedByUser(post.id, UserManager.getCurrentUsername());
 
         return `
-            <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all p-6 scroll-animate card-hover">
+            <div class="bg-white dark:bg-slate-800/60 dark:border dark:border-white/10 rounded-xl shadow-sm hover:shadow-md transition-all p-6 scroll-animate card-hover glass">
                 <!-- 用户信息 -->
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
-                        <img src="${userAvatar}" alt="头像" class="w-12 h-12 rounded-full object-cover">
+                        <img src="${userAvatar}" alt="头像" class="w-12 h-12 rounded-full object-cover border dark:border-white/10">
                         <div>
-                            <h4 class="font-bold text-sm">${post.username}</h4>
-                            <p class="text-xs text-gray-500">${userTag}</p>
+                            <h4 class="font-bold text-sm dark:text-white">${post.username}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${userTag}</p>
                         </div>
                     </div>
                     <span class="text-xs text-gray-400">${post.createTime}</span>
@@ -245,22 +218,22 @@
                 ${tagsHTML}
 
                 <!-- 内容 -->
-                <p class="text-gray-700 mb-4 leading-relaxed">${post.content}</p>
+                <p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">${post.content}</p>
 
                 <!-- 图片 -->
                 ${imagesHTML}
 
                 <!-- 互动按钮 -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-primary transition-custom" onclick="togglePostLike(${post.id}, this)">
+                <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/10">
+                    <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary transition-custom" onclick="togglePostLike(${post.id}, this)">
                         <i class="fa ${isLiked ? 'fa-heart' : 'fa-heart-o'}"></i>
                         <span class="text-sm">${post.likes.length}</span>
                     </button>
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-secondary transition-custom">
+                    <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-secondary transition-custom">
                         <i class="fa fa-comment-o"></i>
                         <span class="text-sm">${post.comments.length}</span>
                     </button>
-                    <button class="flex items-center gap-2 text-gray-500 hover:text-yellow transition-custom" onclick="togglePostCollect(${post.id}, this)">
+                    <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-yellow transition-custom" onclick="togglePostCollect(${post.id}, this)">
                         <i class="fa ${isCollected ? 'fa-star' : 'fa-star-o'}"></i>
                         <span class="text-sm">${post.collects.length}</span>
                     </button>
@@ -361,25 +334,8 @@
         }
     }
 
-    // 滚动动画
-    function observeScrollAnimations() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.scroll-animate').forEach(el => {
-            observer.observe(el);
-        });
-    }
+    // 滚动动画 (已由 theme-core.js 统一处理，此处删除旧逻辑)
+    // function observeScrollAnimations() ...
 
     // 自动激活当前页面的导航项
     function updateActiveNav() {
@@ -399,7 +355,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         loadPosts();
         updateActiveNav();
-        observeScrollAnimations();
+        // observeScrollAnimations(); // theme-core.js 会自动处理
     });
 </script>
 </body>
