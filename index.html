@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Z世代潮流社区</title>
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +21,16 @@
 
     <!-- 配置Tailwind CSS -->
     <script>
+        // 主题初始化脚本 - 放在最前面避免闪烁
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script>
         tailwind.config = {
+            darkMode: 'class', // 开启手动切换暗黑模式
             theme: {
                 extend: {
                     colors: {
@@ -28,8 +38,9 @@
                         secondary: '#40BFFF',  // 天空蓝
                         accent: '#FF7DAB',     // 嫩粉
                         yellow: '#FFD166',     // 亮黄
-                        dark: '#1E293B',       // 深色
-                        light: '#F8FAFC'       // 浅色
+                        dark: '#0F172A',       // 深色背景 (Slate 900)
+                        'dark-card': '#1E293B', // 深色卡片 (Slate 800)
+                        light: '#F8FAFC',       // 浅色
                     },
                     fontFamily: {
                         inter: ['Inter', 'system-ui', 'sans-serif'],
@@ -38,11 +49,18 @@
                         'float': 'float 3s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'bounce-slow': 'bounce 3s infinite',
+                        'blob': 'blob 7s infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
                         }
                     }
                 },
@@ -59,6 +77,10 @@
             .text-shadow {
                 text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
+            /* 霓虹文字光效 */
+            .text-glow {
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
             .transition-custom {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
@@ -73,6 +95,15 @@
                 mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
                 -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
             }
+            
+            /* 毛玻璃特效 */
+            .glass {
+                @apply bg-white/70 backdrop-blur-md border border-white/20;
+            }
+            .glass-dark {
+                @apply dark:bg-slate-800/60 dark:backdrop-blur-md dark:border-white/10;
+            }
+            
             /* 轮播样式 */
             .carousel-container {
                 overflow: hidden;
@@ -370,7 +401,14 @@
     </style>
 </head>
 
-<body class="bg-light text-dark antialiased">
+<body class="bg-light dark:bg-dark text-dark dark:text-gray-100 antialiased transition-colors duration-300">
+<!-- 背景光斑装饰 (暗黑模式专属) -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block">
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute top-0 right-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style="animation-delay: 2s"></div>
+    <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-accent/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style="animation-delay: 4s"></div>
+</div>
+
 <!-- 注册成功通知条 -->
 <div id="registerNotification" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-6 py-3 rounded-full shadow-lg z-50 opacity-0 pointer-events-none transition-all duration-500" style="min-width: 320px;">
     <div class="flex items-center justify-between gap-4">
@@ -395,17 +433,22 @@
 
         <!-- 桌面端导航 -->
         <nav class="hidden md:flex items-center space-x-8">
-            <a href="#home" class="font-medium text-dark hover:text-primary transition-custom">首页</a>
-            <a href="#trends" class="font-medium text-dark hover:text-primary transition-custom">潮流</a>
-            <a href="communities.html" class="font-medium text-dark hover:text-primary transition-custom">社群</a>
-            <a href="#features" class="font-medium text-dark hover:text-primary transition-custom">特色</a>
+            <a href="#home" class="font-medium text-dark dark:text-gray-200 hover:text-primary transition-custom">首页</a>
+            <a href="#trends" class="font-medium text-dark dark:text-gray-200 hover:text-primary transition-custom">潮流</a>
+            <a href="communities.html" class="font-medium text-dark dark:text-gray-200 hover:text-primary transition-custom">社群</a>
+            <a href="#features" class="font-medium text-dark dark:text-gray-200 hover:text-primary transition-custom">特色</a>
             <a href="love/index.html" class="font-medium text-accent hover:text-primary transition-custom flex items-center">
                 <i class="fa fa-heart mr-1"></i>Love
             </a>
         </nav>
 
-        <!-- 按钮组 -->
+            <!-- 按钮组 -->
         <div class="flex items-center space-x-4">
+            <!-- 主题切换 (桌面端) -->
+            <button id="theme-toggle-desktop" class="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 text-dark dark:text-yellow transition-custom hover:shadow-lg">
+                <i class="fa fa-moon-o text-lg"></i>
+            </button>
+
             <!-- 未登录状态 -->
             <div id="authButtons" class="flex items-center space-x-4">
                 <a href="login.html" class="hidden md:inline-block px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-custom">登录</a>
@@ -427,6 +470,9 @@
             </div>
 
             <!-- 移动端菜单按钮 -->
+            <button id="theme-toggle-mobile" class="md:hidden text-dark dark:text-gray-200 hover:text-primary transition-custom mr-2">
+                <i class="fa fa-moon-o text-xl"></i>
+            </button>
             <button id="menu-toggle" class="md:hidden text-dark hover:text-primary transition-custom">
                 <i class="fa fa-bars text-2xl"></i>
             </button>
@@ -434,12 +480,12 @@
     </div>
 
     <!-- 移动端导航菜单 -->
-    <div id="mobile-menu" class="md:hidden hidden bg-white absolute top-full left-0 w-full shadow-lg rounded-b-lg overflow-hidden">
+    <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-dark-card absolute top-full left-0 w-full shadow-lg rounded-b-lg overflow-hidden border-t dark:border-gray-700">
         <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            <a href="#home" class="font-medium text-dark hover:text-primary py-2 transition-custom">首页</a>
-            <a href="#trends" class="font-medium text-dark hover:text-primary py-2 transition-custom">潮流</a>
-            <a href="communities.html" class="font-medium text-dark hover:text-primary py-2 transition-custom">社群</a>
-            <a href="#features" class="font-medium text-dark hover:text-primary py-2 transition-custom">特色</a>
+            <a href="#home" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">首页</a>
+            <a href="#trends" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">潮流</a>
+            <a href="communities.html" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">社群</a>
+            <a href="#features" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">特色</a>
             <a href="love/index.html" class="font-medium text-accent hover:text-primary py-2 transition-custom flex items-center">
                 <i class="fa fa-heart mr-2"></i>Love
             </a>
@@ -450,33 +496,33 @@
 
 <main>
     <!-- 英雄区 -->
-    <section id="home" class="pt-32 pb-20 gradient-bg overflow-hidden relative md:pt-32 md:pb-20">
-        <div class="container mx-auto px-4 md:px-6">
-            <div class="flex flex-col md:flex-row items-center">
+    <section id="home" class="pt-32 pb-20 gradient-bg dark:bg-none dark:bg-dark overflow-hidden relative md:pt-32 md:pb-20 transition-all duration-500">
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-center dark:flex-col dark:text-center transition-all duration-500">
                 <!-- 文字内容 -->
-                <div class="md:w-1/2 page-transition">
-                    <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight text-shadow mb-6">
-                        解锁<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Z世代</span>
+                <div class="md:w-1/2 dark:w-full dark:flex dark:flex-col dark:items-center page-transition relative z-20">
+                    <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight text-shadow dark:text-glow mb-6 text-dark dark:text-white dark:text-[clamp(3rem,6vw,5rem)] transition-all duration-500">
+                        解锁<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary animate-pulse-slow">Z世代</span>
                         <br>潮流新体验
                     </h1>
-                    <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-lg">
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-lg dark:max-w-2xl transition-all duration-500">
                         汇聚00后潮流文化、兴趣社交与创意表达，打造专属于年轻一代的数字社区
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-10">
-                        <a href="trends.html" class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-center hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1">
+                        <a href="trends.html" class="px-8 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-center hover:shadow-xl hover:shadow-primary/30 transition-custom transform hover:-translate-y-1 hover:brightness-110">
                             探索潮流
                         </a>
-                        <a href="communities.html" class="px-8 py-3 rounded-full border-2 border-dark text-dark font-medium text-center hover:bg-dark hover:text-white transition-custom">
+                        <a href="communities.html" class="px-8 py-3 rounded-full border-2 border-dark dark:border-gray-200 text-dark dark:text-gray-200 font-medium text-center hover:bg-dark dark:hover:bg-gray-200 hover:text-white dark:hover:text-dark transition-custom">
                             加入社群
                         </a>
                     </div>
                     <div class="flex items-center space-x-6">
                         <div class="flex -space-x-3">
-                            <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src="https://picsum.photos/200/200?random=2" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src="https://picsum.photos/200/200?random=3" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <img src="https://picsum.photos/200/200?random=4" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white">
-                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium">
+                            <img src="https://picsum.photos/200/200?random=1" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white dark:border-dark-card">
+                            <img src="https://picsum.photos/200/200?random=2" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white dark:border-dark-card">
+                            <img src="https://picsum.photos/200/200?random=3" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white dark:border-dark-card">
+                            <img src="https://picsum.photos/200/200?random=4" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-white dark:border-dark-card">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 border-2 border-white dark:border-dark-card flex items-center justify-center text-xs font-medium dark:text-white">
                                 +2k
                             </div>
                         </div>
@@ -487,45 +533,45 @@
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star-half-o"></i>
-                                <span class="ml-2 text-gray-700">4.8/5</span>
+                                <span class="ml-2 text-gray-700 dark:text-gray-300">4.8/5</span>
                             </div>
-                            <p class="text-sm text-gray-500">来自2000+用户的好评</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">来自2000+用户的好评</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- 图片区域 -->
-                <div class="md:w-1/2 mt-12 md:mt-0 relative page-transition" style="transition-delay: 0.2s;">
-                    <div class="relative w-full max-w-md mx-auto">
+                <div class="md:w-1/2 mt-12 md:mt-0 dark:mt-16 dark:w-full dark:max-w-3xl relative page-transition" style="transition-delay: 0.2s;">
+                    <div class="relative w-full max-w-md mx-auto dark:max-w-lg transition-all duration-500">
                         <!-- 主图 -->
-                        <img src="https://picsum.photos/800/1000?random=10" alt="Z世代潮流" class="w-full h-auto rounded-2xl shadow-2xl">
+                        <img src="https://picsum.photos/800/1000?random=10" alt="Z世代潮流" class="w-full h-auto rounded-2xl shadow-2xl dark:shadow-primary/20 dark:shadow-2xl tilt-element">
 
                         <!-- 装饰元素 -->
-                        <div class="absolute -top-6 -left-6 w-24 h-24 bg-secondary/20 rounded-full blur-xl"></div>
-                        <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-accent/20 rounded-full blur-xl"></div>
+                        <div class="absolute -top-6 -left-6 w-24 h-24 bg-secondary/20 rounded-full blur-xl animate-pulse-slow"></div>
+                        <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-accent/20 rounded-full blur-xl animate-pulse-slow" style="animation-delay: 2s"></div>
 
                         <!-- 悬浮卡片1 -->
-                        <div class="absolute top-10 -right-10 w-40 bg-white rounded-xl shadow-lg p-4 animate-float card-hover">
+                        <div class="absolute top-10 -right-10 w-40 glass glass-dark rounded-xl shadow-lg p-4 animate-float card-hover tilt-element-sm" data-tilt-max="15">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-full bg-yellow/20 flex items-center justify-center text-yellow">
                                     <i class="fa fa-fire"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium">潮流话题</p>
-                                    <p class="text-xs text-gray-500">每日更新</p>
+                                    <p class="text-sm font-medium dark:text-white">潮流话题</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-300">每日更新</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 悬浮卡片2 -->
-                        <div class="absolute bottom-10 -left-10 w-40 bg-white rounded-xl shadow-lg p-4 animate-float card-hover" style="animation-delay: 0.5s;">
+                        <div class="absolute bottom-10 -left-10 w-40 glass glass-dark rounded-xl shadow-lg p-4 animate-float card-hover tilt-element-sm" style="animation-delay: 0.5s;" data-tilt-max="15">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
                                     <i class="fa fa-users"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium">兴趣社群</p>
-                                    <p class="text-xs text-gray-500">找到同好</p>
+                                    <p class="text-sm font-medium dark:text-white">兴趣社群</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-300">找到同好</p>
                                 </div>
                             </div>
                         </div>
@@ -536,24 +582,24 @@
 
         <!-- 波浪装饰 -->
         <div class="absolute bottom-0 left-0 w-full">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto fill-white">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" class="w-full h-auto fill-white dark:fill-dark">
                 <path d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
             </svg>
         </div>
     </section>
 
     <!-- 移动端 Tab 导航 -->
-    <div id="mobileTabsContainer" class="hidden md:hidden sticky top-16 z-40 bg-white border-b border-gray-200">
+    <div id="mobileTabsContainer" class="hidden md:hidden sticky top-16 z-40 bg-white dark:bg-dark/95 dark:backdrop-blur border-b border-gray-200 dark:border-gray-700">
         <div class="flex overflow-x-auto scrollbar-hide">
-            <button class="mobile-tab-btn active" data-tab="trends" onclick="switchMobileTab('trends', this)">
+            <button class="mobile-tab-btn active dark:text-primary" data-tab="trends" onclick="switchMobileTab('trends', this)">
                 <i class="fa fa-fire"></i>
                 <span>潮流</span>
             </button>
-            <button class="mobile-tab-btn" data-tab="features" onclick="switchMobileTab('features', this)">
+            <button class="mobile-tab-btn dark:text-gray-400" data-tab="features" onclick="switchMobileTab('features', this)">
                 <i class="fa fa-star"></i>
                 <span>特色</span>
             </button>
-            <button class="mobile-tab-btn" data-tab="posts" onclick="switchMobileTab('posts', this)">
+            <button class="mobile-tab-btn dark:text-gray-400" data-tab="posts" onclick="switchMobileTab('posts', this)">
                 <i class="fa fa-list"></i>
                 <span>动态</span>
             </button>
@@ -561,17 +607,17 @@
     </div>
 
     <!-- 潮流趋势区 -->
-    <section id="trends" class="mobile-tab-content py-20 bg-white">
+    <section id="trends" class="mobile-tab-content py-20 bg-white dark:bg-dark">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
             <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
           <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             热门趋势
           </span>
-                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     00后正在追捧的<span class="text-primary">潮流文化</span>
                 </h2>
-                <p class="text-gray-600 text-lg">
+                <p class="text-gray-600 dark:text-gray-400 text-lg">
                     紧跟Z世代步伐，发现最新、最in的潮流趋势，成为朋友圈的潮流引领者
                 </p>
             </div>
@@ -579,18 +625,18 @@
             <!-- 潮流卡片网格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- 潮流卡片1 -->
-                <a href="trend-detail.html" class="block bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate">
+                <a href="trend-detail.html" class="block bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=20" alt="街头时尚" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             街头时尚
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">复古回潮 x 未来科技</h3>
-                        <p class="text-gray-600 mb-4">将90年代复古元素与未来科技感设计完美融合，打造独特视觉冲击</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">复古回潮 x 未来科技</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">将90年代复古元素与未来科技感设计完美融合，打造独特视觉冲击</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 2.4k 浏览
                 </span>
                             <span class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></span>
@@ -599,18 +645,18 @@
                 </a>
 
                 <!-- 潮流卡片2 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.1s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.1s;">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=21" alt="数字艺术" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             数字艺术
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">NFT数字藏品热潮</h3>
-                        <p class="text-gray-600 mb-4">年轻一代正在拥抱数字所有权，NFT艺术成为新的收藏和投资方式</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">NFT数字藏品热潮</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">年轻一代正在拥抱数字所有权，NFT艺术成为新的收藏和投资方式</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 3.7k 浏览
                 </span>
                             <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
@@ -619,18 +665,18 @@
                 </div>
 
                 <!-- 潮流卡片3 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.2s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.2s;">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=22" alt="生活方式" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             生活方式
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">极简主义生活</h3>
-                        <p class="text-gray-600 mb-4">断舍离成为新潮流，00后追求简约、环保、有品质的生活方式</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">极简主义生活</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">断舍离成为新潮流，00后追求简约、环保、有品质的生活方式</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 1.9k 浏览
                 </span>
                             <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
@@ -639,18 +685,18 @@
                 </div>
 
                 <!-- 潮流卡片4 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.3s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.3s;">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=23" alt="音乐潮流" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             音乐潮流
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">独立音乐崛起</h3>
-                        <p class="text-gray-600 mb-4">小众独立音乐人受到追捧，个性化音乐品味成为年轻人的身份标签</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">独立音乐崛起</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">小众独立音乐人受到追捧，个性化音乐品味成为年轻人的身份标签</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 2.8k 浏览
                 </span>
                             <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
@@ -659,18 +705,18 @@
                 </div>
 
                 <!-- 潮流卡片5 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.4s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.4s;">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=24" alt="游戏文化" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             游戏文化
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">电竞与游戏社交</h3>
-                        <p class="text-gray-600 mb-4">游戏不再只是娱乐，成为年轻人社交、竞技和自我表达的重要平台</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">电竞与游戏社交</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">游戏不再只是娱乐，成为年轻人社交、竞技和自我表达的重要平台</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 4.2k 浏览
                 </span>
                             <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
@@ -679,18 +725,18 @@
                 </div>
 
                 <!-- 潮流卡片6 -->
-                <div class="bg-gray-50 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.5s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-2xl overflow-hidden shadow-md card-hover scroll-animate" style="transition-delay: 0.5s;">
                     <div class="relative h-60 overflow-hidden">
                         <img src="https://picsum.photos/600/400?random=25" alt="美食潮流" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
-                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-medium">
+                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 dark:bg-dark/90 backdrop-blur-sm text-sm font-medium dark:text-white">
                             美食潮流
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">健康轻食主义</h3>
-                        <p class="text-gray-600 mb-4">健康、低脂、高颜值的轻食成为年轻人的饮食新选择，兼顾美味与健康</p>
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">健康轻食主义</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">健康、低脂、高颜值的轻食成为年轻人的饮食新选择，兼顾美味与健康</p>
                         <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-gray-500 dark:text-gray-500">
                   <i class="fa fa-eye mr-1"></i> 2.1k 浏览
                 </span>
                             <a href="#" class="text-primary font-medium hover:underline">查看详情 <i class="fa fa-arrow-right ml-1"></i></a>
@@ -709,17 +755,17 @@
     </section>
 
     <!-- 社区区域 -->
-    <section id="community" class="py-20 bg-gray-50">
+    <section id="community" class="py-20 bg-gray-50 dark:bg-dark">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
             <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
           <span class="inline-block px-4 py-1 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-4">
             兴趣社群
           </span>
-                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     找到你的<span class="text-secondary">同好圈子</span>
                 </h2>
-                <p class="text-gray-600 text-lg">
+                <p class="text-gray-600 dark:text-gray-400 text-lg">
                     无论你喜欢什么，这里都有和你志同道合的朋友，一起交流、分享、成长
                 </p>
             </div>
@@ -743,14 +789,14 @@
     </section>
 
     <!-- 动态列表区 -->
-    <section id="posts" class="mobile-tab-content py-20 bg-white">
+    <section id="posts" class="mobile-tab-content py-20 bg-white dark:bg-dark">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
             <div class="text-center max-w-3xl mx-auto mb-8 scroll-animate">
                 <span class="inline-block px-4 py-1 rounded-full bg-yellow/20 text-yellow text-sm font-medium mb-4">
                     社区动态
                 </span>
-                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     潮流<span class="text-primary">动态</span>实时更新
                 </h2>
             </div>
@@ -768,11 +814,11 @@
                 <!-- 轮播容器 -->
                 <div class="relative max-w-2xl mx-auto">
                     <!-- 卡片轮播 -->
-                    <div class="overflow-hidden rounded-2xl bg-white shadow-lg">
+                    <div class="overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-lg dark:shadow-none dark:border dark:border-white/10">
                         <div class="carousel-container relative h-96" id="carouselContainer">
                             <div class="carousel-track flex transition-transform duration-500" id="carouselTrack">
                                 <!-- 卡片将通过JavaScript动态生成 -->
-                                <div class="carousel-slide flex-shrink-0 w-full h-96 flex items-center justify-center bg-gray-50">
+                                <div class="carousel-slide flex-shrink-0 w-full h-96 flex items-center justify-center bg-gray-50 dark:bg-slate-800">
                                     <div class="text-center text-gray-500">
                                         <i class="fa fa-inbox text-4xl mb-4 opacity-50"></i>
                                         <p>暂无动态，快去分享你的潮流想法吧～</p>
@@ -781,13 +827,13 @@
                             </div>
 
                             <!-- 左右导航按钮 -->
-                            <button onclick="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-primary transition-custom">
+                            <button onclick="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 dark:bg-slate-700/80 hover:bg-white dark:hover:bg-slate-600 flex items-center justify-center text-primary transition-custom">
                                 <i class="fa fa-chevron-left"></i>
                             </button>
-                            <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-primary transition-custom">
+                            <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 dark:bg-slate-700/80 hover:bg-white dark:hover:bg-slate-600 flex items-center justify-center text-primary transition-custom">
                                 <i class="fa fa-chevron-right"></i>
                             </button>
-
+                            
                             <!-- 指示点 -->
                             <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10" id="carouselDots">
                                 <!-- 指示点将通过JavaScript动态生成 -->
@@ -810,17 +856,17 @@
     </section>
 
     <!-- 特色功能区 -->
-    <section id="features" class="mobile-tab-content py-20 bg-white">
+    <section id="features" class="mobile-tab-content py-20 bg-white dark:bg-dark">
         <div class="container mx-auto px-4 md:px-6">
             <!-- 标题区域 -->
             <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
           <span class="inline-block px-4 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
             特色功能
           </span>
-                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                     专为<span class="text-accent">00后</span>打造的功能体验
                 </h2>
-                <p class="text-gray-600 text-lg">
+                <p class="text-gray-600 dark:text-gray-400 text-lg">
                     结合年轻一代的使用习惯，打造简单、有趣、高效的功能，让每一次互动都充满惊喜
                 </p>
             </div>
@@ -828,132 +874,132 @@
             <!-- 功能卡片 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- 功能卡片1 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate">
                     <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
                         <i class="fa fa-magic"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">个性化推荐</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">个性化推荐</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         基于你的兴趣和行为，智能推荐你可能喜欢的内容、社群和朋友，发现更多精彩
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 内容精准匹配
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 兴趣社群推荐
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 志同道合好友
                         </li>
                     </ul>
                 </div>
 
                 <!-- 功能卡片2 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.1s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.1s;">
                     <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-2xl mb-6">
                         <i class="fa fa-video-camera"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">互动直播</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">互动直播</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         实时互动直播功能，与喜欢的博主近距离交流，参与话题讨论，分享生活点滴
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 高清流畅直播
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 实时弹幕互动
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 连麦互动交流
                         </li>
                     </ul>
                 </div>
 
                 <!-- 功能卡片3 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.2s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.2s;">
                     <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl mb-6">
                         <i class="fa fa-paint-brush"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">创意编辑器</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">创意编辑器</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         强大的内容创作工具，丰富的模板、滤镜和特效，让你的作品脱颖而出
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-accent mr-2"></i> 海量模板库
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-accent mr-2"></i> 特效滤镜
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-accent mr-2"></i> 一键分享
                         </li>
                     </ul>
                 </div>
 
                 <!-- 功能卡片4 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.3s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.3s;">
                     <div class="w-14 h-14 rounded-full bg-yellow/10 flex items-center justify-center text-yellow text-2xl mb-6">
                         <i class="fa fa-trophy"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">任务与成就</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">任务与成就</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         丰富的任务系统和成就体系，让你的每一次互动都有回报，解锁专属身份标识
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-yellow mr-2"></i> 每日任务
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-yellow mr-2"></i> 成就勋章
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-yellow mr-2"></i> 等级特权
                         </li>
                     </ul>
                 </div>
 
                 <!-- 功能卡片5 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.4s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.4s;">
                     <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
                         <i class="fa fa-shield"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">安全隐私</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">安全隐私</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         全方位的安全保护和隐私控制，让你安心社交，放心分享，掌控自己的数字生活
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 隐私权限控制
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 内容安全审核
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-primary mr-2"></i> 账号安全保护
                         </li>
                     </ul>
                 </div>
 
                 <!-- 功能卡片6 -->
-                <div class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.5s;">
+                <div class="bg-gray-50 dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom scroll-animate" style="transition-delay: 0.5s;">
                     <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-2xl mb-6">
                         <i class="fa fa-mobile"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">跨端同步</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-xl font-bold mb-3 dark:text-white">跨端同步</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
                         支持多设备登录和数据同步，随时随地访问你的内容和社群，无缝切换体验
                     </p>
                     <ul class="space-y-2">
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 多设备登录
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 数据实时同步
                         </li>
-                        <li class="flex items-center text-sm text-gray-600">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                             <i class="fa fa-check text-secondary mr-2"></i> 无缝切换体验
                         </li>
                     </ul>
@@ -962,49 +1008,49 @@
 
             <!-- 数据统计 -->
             <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 scroll-animate">
-                <div class="text-center p-6 bg-gray-50 rounded-xl">
+                <div class="text-center p-6 bg-gray-50 dark:bg-slate-800/50 rounded-xl">
                     <div class="text-4xl font-bold text-primary mb-2" id="counter1">0</div>
-                    <p class="text-gray-600">注册用户</p>
+                    <p class="text-gray-600 dark:text-gray-400">注册用户</p>
                 </div>
-                <div class="text-center p-6 bg-gray-50 rounded-xl">
+                <div class="text-center p-6 bg-gray-50 dark:bg-slate-800/50 rounded-xl">
                     <div class="text-4xl font-bold text-secondary mb-2" id="counter2">0</div>
-                    <p class="text-gray-600">兴趣社群</p>
+                    <p class="text-gray-600 dark:text-gray-400">兴趣社群</p>
                 </div>
-                <div class="text-center p-6 bg-gray-50 rounded-xl">
+                <div class="text-center p-6 bg-gray-50 dark:bg-slate-800/50 rounded-xl">
                     <div class="text-4xl font-bold text-accent mb-2" id="counter3">0</div>
-                    <p class="text-gray-600">内容分享</p>
+                    <p class="text-gray-600 dark:text-gray-400">内容分享</p>
                 </div>
-                <div class="text-center p-6 bg-gray-50 rounded-xl">
+                <div class="text-center p-6 bg-gray-50 dark:bg-slate-800/50 rounded-xl">
                     <div class="text-4xl font-bold text-yellow mb-2" id="counter4">0</div>
-                    <p class="text-gray-600">互动次数</p>
+                    <p class="text-gray-600 dark:text-gray-400">互动次数</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- 下载区域 -->
-    <section class="py-20 bg-gradient-to-r from-primary/5 to-secondary/5">
+    <section class="py-20 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-slate-800 dark:to-slate-900">
         <div class="container mx-auto px-4 md:px-6">
             <div class="flex flex-col md:flex-row items-center justify-between">
                 <div class="md:w-1/2 mb-10 md:mb-0 scroll-animate">
             <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
               立即下载
             </span>
-                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">
+                    <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
                         随时随地体验<span class="text-primary">潮流生活</span>
                     </h2>
-                    <p class="text-gray-600 text-lg mb-8">
+                    <p class="text-gray-600 dark:text-gray-400 text-lg mb-8">
                         下载我们的APP，解锁更多专属功能，与千万00后一起探索潮流、分享生活、结交好友
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="#" class="flex items-center bg-dark text-white px-6 py-3 rounded-xl hover:bg-dark/90 transition-custom">
+                        <a href="#" class="flex items-center bg-dark dark:bg-black text-white px-6 py-3 rounded-xl hover:bg-dark/90 transition-custom">
                             <i class="fa fa-apple text-2xl mr-3"></i>
                             <div>
                                 <div class="text-xs">Download on the</div>
                                 <div class="font-bold">App Store</div>
                             </div>
                         </a>
-                        <a href="#" class="flex items-center bg-dark text-white px-6 py-3 rounded-xl hover:bg-dark/90 transition-custom">
+                        <a href="#" class="flex items-center bg-dark dark:bg-black text-white px-6 py-3 rounded-xl hover:bg-dark/90 transition-custom">
                             <i class="fa fa-android text-2xl mr-3"></i>
                             <div>
                                 <div class="text-xs">GET IT ON</div>
@@ -1138,6 +1184,51 @@
 
 <!-- JavaScript -->
 <script>
+    // ========== 主题切换功能 ==========
+    const themeToggleDesktop = document.getElementById('theme-toggle-desktop');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+        }
+        updateThemeToggleIcons();
+    }
+    
+    function updateThemeToggleIcons() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const iconClass = isDark ? 'fa-sun-o' : 'fa-moon-o';
+        const activeClass = isDark ? 'text-yellow' : 'text-dark';
+        
+        // 桌面端
+        if (themeToggleDesktop) {
+            const icon = themeToggleDesktop.querySelector('i');
+            icon.className = `fa ${iconClass} text-lg`;
+            if (isDark) {
+                themeToggleDesktop.classList.add('bg-slate-700', 'text-yellow');
+                themeToggleDesktop.classList.remove('bg-gray-100', 'text-dark');
+            } else {
+                themeToggleDesktop.classList.add('bg-gray-100', 'text-dark');
+                themeToggleDesktop.classList.remove('bg-slate-700', 'text-yellow');
+            }
+        }
+        
+        // 移动端
+        if (themeToggleMobile) {
+            const icon = themeToggleMobile.querySelector('i');
+            icon.className = `fa ${iconClass} text-xl`;
+            themeToggleMobile.className = `md:hidden transition-custom mr-2 ${isDark ? 'text-yellow' : 'text-dark'}`;
+        }
+    }
+    
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
+
+
     // 导航栏滚动效果
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
@@ -1328,7 +1419,7 @@
                 }
             });
         }, {
-            threshold: 0.1,
+            threshold: 0.15, // 稍微增加阈值，避免过早触发
             rootMargin: '0px 0px -50px 0px'
         });
 
@@ -1337,6 +1428,15 @@
             animationObserver.observe(element);
         });
     }
+    
+    // 扩展 Scroll Animate 逻辑：处理 grid 子元素的交错显示
+    const staggerItems = document.querySelectorAll('.grid > div, .grid > a');
+    staggerItems.forEach((item, index) => {
+        // 计算每一行的大致位置，实现按行交错
+        const delay = (index % 3) * 100; // 每行3个为例
+        item.classList.add('scroll-animate');
+        item.style.transitionDelay = `${delay}ms`;
+    });
 
     // 性能优化：节流滚动事件
     let scrollTimeout;
@@ -1421,6 +1521,9 @@
 
     // 检查是否从注册页跳转过来
     window.addEventListener('DOMContentLoaded', () => {
+        // 初始化主题按钮图标
+        updateThemeToggleIcons();
+
         const urlParams = new URLSearchParams(window.location.search);
         const registered = urlParams.get('registered');
         const tag = urlParams.get('tag');
@@ -1511,7 +1614,7 @@
         const userTag = user ? (user.tags[0] || '潮流新星') : '潮流新星';
 
         const slide = document.createElement('div');
-        slide.className = 'carousel-slide flex flex-col justify-between p-6 bg-white';
+        slide.className = 'carousel-slide flex flex-col justify-between p-6 bg-white dark:bg-slate-800 dark:text-gray-200';
 
         const imageHTML = post.images.length > 0 ? `
             <img src="${post.images[0]}" alt="动态图片" class="w-full h-40 object-cover rounded-lg mb-4">
@@ -1530,24 +1633,24 @@
                 <div class="flex items-center gap-3 mb-4">
                     <img src="${userAvatar}" alt="头像" class="w-10 h-10 rounded-full">
                     <div>
-                        <h4 class="font-bold text-sm">${post.username}</h4>
-                        <p class="text-xs text-gray-500">${userTag}</p>
+                        <h4 class="font-bold text-sm dark:text-white">${post.username}</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${userTag}</p>
                     </div>
                 </div>
                 ${tagsHTML}
-                <p class="text-gray-700 mb-3 line-clamp-3">${post.content}</p>
+                <p class="text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">${post.content}</p>
                 ${imageHTML}
             </div>
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-custom">
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                <button class="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-primary transition-custom">
                     <i class="fa fa-heart-o"></i>
                     <span class="text-sm">${post.likes.length}</span>
                 </button>
-                <button class="flex items-center gap-1 text-gray-500 hover:text-secondary transition-custom">
+                <button class="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-secondary transition-custom">
                     <i class="fa fa-comment-o"></i>
                     <span class="text-sm">${post.comments.length}</span>
                 </button>
-                <button class="flex items-center gap-1 text-gray-500 hover:text-yellow transition-custom">
+                <button class="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-yellow transition-custom">
                     <i class="fa fa-star-o"></i>
                     <span class="text-sm">${post.collects.length}</span>
                 </button>
@@ -1648,18 +1751,94 @@
         }, false);
     }
 
-    // 页面加载时初始化
-    window.addEventListener('DOMContentLoaded', () => {
-        // 检查登录状态
-        checkLoginState();
+    // ========== 3D Tilt 效果 (高级交互) ==========
+    function init3DTilt() {
+        // 只在非移动端启用
+        if (window.innerWidth > 768) {
+            const cards = document.querySelectorAll('.card-hover, .tilt-element');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', handleTilt);
+                card.addEventListener('mouseleave', resetTilt);
+            });
+        }
+    }
+
+    function handleTilt(e) {
+        const card = this;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
         
-        // 如果没有动态，添加示例数据用于演示
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // 计算旋转角度 (限制最大角度)
+        const rotateX = ((y - centerY) / centerY) * -5; 
+        const rotateY = ((x - centerX) / centerX) * 5;
+        
+        // 应用 3D 变换
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        // 去掉过渡以获得实时响应
+        card.style.transition = 'none';
+    }
+
+    function resetTilt() {
+        this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        this.style.transition = 'transform 0.5s ease';
+    }
+
+    // ========== 滚动视差背景 ==========
+    function handleParallax() {
+        const blobs = document.querySelectorAll('.animate-blob');
+        if (blobs.length === 0) return;
+        
+        const scrolled = window.scrollY;
+        blobs.forEach((blob, index) => {
+            // 不同层级不同速度
+            const speed = 0.05 * (index + 1);
+            const yPos = scrolled * speed;
+            blob.style.transform = `translateY(${yPos}px)`;
+        });
+    }
+
+    // ========== 页面初始化 ==========
+    window.addEventListener('DOMContentLoaded', () => {
+        // 1. 基础功能初始化
+        checkLoginState();
         if (PostsManager.getAllPosts().length === 0) {
             addDemoPostsForCarousel();
         }
-        
         initCarousel();
         updateActiveNav();
+        
+        // 2. 动效初始化 (交错动画)
+        const staggerItems = document.querySelectorAll('.grid > div, .grid > a');
+        staggerItems.forEach((item, index) => {
+            // 按列数取模来实现波浪式交错
+            const colCount = window.innerWidth > 1024 ? 3 : (window.innerWidth > 768 ? 2 : 1);
+            const delay = (index % colCount) * 150; 
+            item.style.transitionDelay = `${delay}ms`;
+            // 确保添加了动画类
+            item.classList.add('scroll-animate');
+        });
+
+        // 3. 高级交互初始化 (延迟执行，优先保证首屏渲染)
+        setTimeout(() => {
+            init3DTilt();
+            
+            // 滚动监听 (使用 requestAnimationFrame 优化)
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        handleParallax();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        }, 800);
+        
     }, { once: true });
 
     // 添加示例动态用于轮播演示
@@ -1794,7 +1973,7 @@
             const featured = communities.slice(-4).reverse();
 
             grid.innerHTML = featured.map((community, index) => `
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover" style="transition-delay: ${index * 0.1}s;">
+                <div class="bg-white dark:bg-slate-800/50 dark:border dark:border-white/5 rounded-xl shadow-sm overflow-hidden card-hover" style="transition-delay: ${index * 0.1}s;">
                     <div class="relative h-36">
                         <img src="${community.avatar}" alt="${community.name}" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -1802,14 +1981,14 @@
                     </div>
                     <div class="p-4">
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm text-gray-500"><i class="fa fa-users mr-1"></i> ${community.memberCount} 成员</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400"><i class="fa fa-users mr-1"></i> ${community.memberCount} 成员</span>
                             <span class="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">${community.category}</span>
                         </div>
-                        <p class="text-sm text-gray-600 mb-2">
+                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
                             <i class="fa fa-user-circle mr-1"></i>
-                            <span class="text-xs text-gray-500">创建者: ${community.creator}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">创建者: ${community.creator}</span>
                         </p>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">${community.description}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">${community.description}</p>
                         <button class="w-full py-2 rounded-lg border border-secondary text-secondary font-medium hover:bg-secondary hover:text-white transition-custom" onclick="joinCommunityFromHome(${community.id})">
                             加入社群
                         </button>
@@ -1859,24 +2038,24 @@
     });
 </script>
 
-<!-- 底部导航 -->
-<nav class="bottom-nav md:hidden">
-    <a href="index.html" class="nav-item active" data-page="home">
-        <i class="fa fa-home"></i>
-        <span>首页</span>
-    </a>
-    <a href="communities.html" class="nav-item" data-page="communities">
-        <i class="fa fa-users"></i>
-        <span>社群</span>
-    </a>
-    <a href="post.html" class="nav-item" data-page="post">
-        <i class="fa fa-plus-circle"></i>
-        <span>发布</span>
-    </a>
-    <a href="profile.html" class="nav-item" data-page="profile">
-        <i class="fa fa-user"></i>
-        <span>我的</span>
-    </a>
-</nav>
+    <!-- 底部导航 -->
+    <nav class="bottom-nav md:hidden dark:bg-dark-card dark:border-gray-700">
+        <a href="index.html" class="nav-item active" data-page="home">
+            <i class="fa fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="communities.html" class="nav-item" data-page="communities">
+            <i class="fa fa-users"></i>
+            <span>社群</span>
+        </a>
+        <a href="post.html" class="nav-item" data-page="post">
+            <i class="fa fa-plus-circle"></i>
+            <span>发布</span>
+        </a>
+        <a href="profile.html" class="nav-item" data-page="profile">
+            <i class="fa fa-user"></i>
+            <span>我的</span>
+        </a>
+    </nav>
 </body>
 </html>
