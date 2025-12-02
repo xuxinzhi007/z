@@ -27,6 +27,12 @@
     <script src="js/theme-core.js"></script>
 
     <style>
+        /* CSS 变量定义 */
+        :root {
+            --profile-cover-height: 120px; /* 默认收起状态 */
+            --profile-cover-expanded: 280px; /* 展开状态 */
+        }
+
         /* 暗黑模式适配 */
         .dark .profile-cover {
             filter: brightness(0.8);
@@ -132,11 +138,18 @@
         .profile-cover {
             position: relative;
             width: 100%;
-            height: 280px;
+            height: var(--profile-cover-height);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             overflow: hidden;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .profile-cover.expanded {
+            --profile-cover-height: var(--profile-cover-expanded);
         }
 
         @keyframes gradientShift {
@@ -163,10 +176,15 @@
         /* 头像 */
         .avatar-container {
             position: absolute;
-            bottom: -60px;
+            bottom: -40px; /* 调整到更合适的位置，确保头像完全可见 */
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-cover.expanded .avatar-container {
+            bottom: -60px; /* 展开时使用原来的位置 */
         }
 
         .avatar {
@@ -216,11 +234,70 @@
             right: 20px;
         }
 
+        /* 展开指示器 */
+        .expand-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .expand-indicator:hover,
+        .expand-indicator:focus {
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            outline: none;
+        }
+
+        .expand-indicator:focus {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(255, 107, 53, 0.5);
+        }
+
+        .expand-indicator i {
+            transition: transform 0.3s;
+            margin-left: 6px;
+        }
+
+        .profile-cover.expanded .expand-indicator i {
+            transform: rotate(180deg);
+        }
+
+        .dark .expand-indicator {
+            background: rgba(30, 41, 59, 0.9);
+            color: #94A3B8;
+        }
+
+        .dark .expand-indicator:hover,
+        .dark .expand-indicator:focus {
+            background: rgba(30, 41, 59, 1);
+        }
+
+        .dark .expand-indicator:focus {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 107, 53, 0.5);
+        }
+
         /* 个人信息区 */
         .profile-info {
-            margin-top: 80px;
+            margin-top: 60px; /* 减少上边距，因为背景变小了 */
             text-align: center;
             padding: 0 20px;
+            transition: margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-cover.expanded + .profile-info {
+            margin-top: 80px; /* 展开时使用原来的边距 */
         }
 
         /* 人设标签 */
@@ -591,10 +668,54 @@
             font-size: 24px;
         }
 
-        /* 为底部导航预留空间 */
+        /* 响应式调整 */
         @media (max-width: 768px) {
             body {
                 padding-bottom: 60px;
+            }
+
+            :root {
+                --profile-cover-height: 100px; /* 移动端默认更小 */
+                --profile-cover-expanded: 240px; /* 移动端展开也相对较小 */
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .avatar-container {
+                bottom: -30px;
+            }
+
+            .profile-cover.expanded .avatar-container {
+                bottom: -50px;
+            }
+
+            .profile-info {
+                margin-top: 50px;
+            }
+
+            .profile-cover.expanded + .profile-info {
+                margin-top: 70px;
+            }
+
+            .expand-indicator {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* 大屏幕优化 */
+        @media (min-width: 1024px) {
+            :root {
+                --profile-cover-height: 140px;
+                --profile-cover-expanded: 320px;
+            }
+
+            .expand-indicator {
+                font-size: 13px;
+                padding: 10px 20px;
             }
         }
 
@@ -637,6 +758,15 @@
     <!-- 头像 -->
     <div class="avatar-container">
         <img src="" alt="头像" class="avatar" id="avatar">
+    </div>
+
+    <!-- 展开/收起指示器 -->
+    <div class="expand-indicator" onclick="toggleCoverExpansion()"
+         tabindex="0" role="button"
+         aria-label="展开或收起个人背景"
+         onkeydown="handleIndicatorKeydown(event)">
+        <span>查看背景</span>
+        <i class="fa fa-chevron-down"></i>
     </div>
 </div>
 
@@ -981,6 +1111,130 @@
 </div>
 
 <script>
+    // 个人中心背景展开控制器
+    class ProfileCoverController {
+        constructor() {
+            this.coverElement = document.querySelector('.profile-cover');
+            this.indicatorText = document.querySelector('.expand-indicator span');
+            this.isExpanded = false;
+            this.startY = 0;
+            this.currentY = 0;
+            this.threshold = 80; // 增加阈值，减少误触发
+            this.isDragging = false;
+            this.hasTriggered = false; // 防止一次拖拽中重复触发
+
+            this.initEventListeners();
+        }
+
+        initEventListeners() {
+            // 触摸事件（移动端）
+            this.coverElement.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+            this.coverElement.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
+            this.coverElement.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+
+            // 鼠标事件（桌面端）
+            this.coverElement.addEventListener('mousedown', this.handleMouseStart.bind(this));
+            document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+            document.addEventListener('mouseup', this.handleMouseEnd.bind(this));
+
+            this.isDragging = false;
+        }
+
+        handleTouchStart(e) {
+            this.startY = e.touches[0].clientY;
+            this.isDragging = true;
+            this.hasTriggered = false; // 重置触发标志
+        }
+
+        handleTouchMove(e) {
+            if (!this.isDragging || this.hasTriggered) return;
+
+            this.currentY = e.touches[0].clientY;
+            const deltaY = this.currentY - this.startY;
+
+            // 只在明确的垂直拖拽方向上触发，避免与水平滚动冲突
+            if (Math.abs(deltaY) > this.threshold) {
+                if (deltaY > 0 && !this.isExpanded) {
+                    // 向下拖拽且当前是收起状态
+                    this.toggle();
+                    this.hasTriggered = true;
+                } else if (deltaY < 0 && this.isExpanded) {
+                    // 向上拖拽且当前是展开状态
+                    this.toggle();
+                    this.hasTriggered = true;
+                }
+            }
+        }
+
+        handleTouchEnd(e) {
+            this.isDragging = false;
+            this.hasTriggered = false;
+        }
+
+        handleMouseStart(e) {
+            this.startY = e.clientY;
+            this.isDragging = true;
+            this.hasTriggered = false;
+        }
+
+        handleMouseMove(e) {
+            if (!this.isDragging || this.hasTriggered) return;
+
+            this.currentY = e.clientY;
+            const deltaY = this.currentY - this.startY;
+
+            if (Math.abs(deltaY) > this.threshold) {
+                if (deltaY > 0 && !this.isExpanded) {
+                    this.toggle();
+                    this.hasTriggered = true;
+                } else if (deltaY < 0 && this.isExpanded) {
+                    this.toggle();
+                    this.hasTriggered = true;
+                }
+            }
+        }
+
+        handleMouseEnd(e) {
+            this.isDragging = false;
+            this.hasTriggered = false;
+        }
+
+        toggle() {
+            this.isExpanded = !this.isExpanded;
+            this.coverElement.classList.toggle('expanded', this.isExpanded);
+
+            // 更新指示器文字
+            if (this.indicatorText) {
+                this.indicatorText.textContent = this.isExpanded ? '收起背景' : '查看背景';
+            }
+
+            // 触觉反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            // 重置拖拽状态，避免连续触发
+            this.isDragging = false;
+        }
+    }
+
+    // 全局函数供按钮调用
+    let profileController;
+    function toggleCoverExpansion() {
+        if (profileController) {
+            profileController.toggle();
+        }
+    }
+
+    // 键盘事件处理
+    function handleIndicatorKeydown(event) {
+        // 空格键或回车键触发
+        if (event.key === ' ' || event.key === 'Enter') {
+            event.preventDefault();
+            toggleCoverExpansion();
+        }
+    }
+
     // 页面加载时检查登录状态并加载用户信息
     window.addEventListener('DOMContentLoaded', () => {
         // 主题图标更新
@@ -1003,6 +1257,9 @@
 
         // 加载用户社群
         loadUserCommunities();
+
+        // 初始化背景展开控制器
+        profileController = new ProfileCoverController();
     });
 
     // 加载用户资料
