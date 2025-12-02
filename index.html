@@ -25,6 +25,10 @@
     <script src="js/gestureManager.js"></script>
     <!-- 引入核心主题引擎 -->
     <script src="js/theme-core.js"></script>
+    <!-- 引入通知管理模块 -->
+    <script src="js/notificationManager.js"></script>
+    <!-- 引入消息管理模块 -->
+    <script src="js/messageManager.js"></script>
 
     <style>
         /* 页面特定样式 */
@@ -260,6 +264,14 @@
 
             <!-- 按钮组 -->
         <div class="flex items-center space-x-4">
+            <!-- 搜索框 -->
+            <div class="hidden md:block w-64">
+                <div class="relative">
+                    <input type="text" id="desktopSearchInput" placeholder="搜索用户、动态、社群..." class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-dark-card text-dark dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+            
             <!-- 主题切换 (桌面端) -->
             <button id="theme-toggle-desktop" class="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 text-dark dark:text-yellow transition-custom hover:shadow-lg">
                 <i class="fa fa-moon-o text-lg"></i>
@@ -275,6 +287,42 @@
             <div id="userInfo" class="hidden items-center space-x-3">
                 <a href="post.html" class="hidden md:inline-block px-4 py-2 rounded-full bg-yellow text-dark font-medium hover:shadow-lg transition-custom">
                     <i class="fa fa-plus mr-1"></i>发布
+                </a>
+                <!-- 通知图标 -->
+                <div class="relative group">
+                    <button id="notificationBtn" class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-custom">
+                        <i class="fa fa-bell text-xl text-dark dark:text-gray-200"></i>
+                        <span id="notificationBadge" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden"></span>
+                    </button>
+                    <!-- 通知下拉面板 -->
+                    <div id="notificationPanel" class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg py-2 z-50 hidden">
+                        <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-medium text-dark dark:text-white">通知</h3>
+                                <button id="markAllAsReadBtn" class="text-xs text-primary hover:underline">全部已读</button>
+                            </div>
+                        </div>
+                        <!-- 通知列表 -->
+                        <div id="notificationList" class="max-h-96 overflow-y-auto">
+                            <!-- 通知项将通过JavaScript动态生成 -->
+                            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                <i class="fa fa-bell-o text-4xl mb-2 opacity-50"></i>
+                                <p>暂无通知</p>
+                            </div>
+                        </div>
+                        <!-- 底部操作 -->
+                        <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <button id="clearAllNotificationsBtn" class="text-xs text-gray-500 hover:text-red-500">清空通知</button>
+                                <a href="#" class="text-xs text-primary hover:underline">查看全部</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 消息图标 -->
+                <a href="messages.html" class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-custom">
+                    <i class="fa fa-envelope text-xl text-dark dark:text-gray-200"></i>
+                    <span id="messagesBadge" class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden"></span>
                 </a>
                 <a href="profile.html" class="hidden md:flex items-center space-x-2 hover:opacity-80 transition-custom">
                     <img id="userAvatar" src="" alt="头像" class="w-8 h-8 rounded-full border-2 border-primary">
@@ -298,10 +346,17 @@
     <!-- 移动端导航菜单 -->
     <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-dark-card absolute top-full left-0 w-full shadow-lg rounded-b-lg overflow-hidden border-t dark:border-gray-700">
         <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+            <div class="relative mb-4">
+                <input type="text" id="mobileSearchInput" placeholder="搜索用户、动态、社群..." class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-dark-card text-dark dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
             <a href="#home" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">首页</a>
             <a href="#trends" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">潮流</a>
             <a href="communities.html" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">社群</a>
-            <a href="#features" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">特色</a>
+            <a href="index.html#features" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom">特色</a>
+            <a href="messages.html" class="font-medium text-dark dark:text-gray-200 hover:text-primary py-2 transition-custom flex items-center">
+                <i class="fa fa-envelope mr-2"></i>消息
+            </a>
             <a href="love/index.html" class="font-medium text-accent hover:text-primary py-2 transition-custom flex items-center">
                 <i class="fa fa-heart mr-2"></i>Love
             </a>
@@ -1118,7 +1173,224 @@
     };
 
     window.addEventListener('scroll', startCounting);
+
+    // ========== 通知功能 ==========
+    
+    // 通知面板显示/隐藏
+    const notificationBtn = document.getElementById('notificationBtn');
+    const notificationPanel = document.getElementById('notificationPanel');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+    const markAllAsReadBtn = document.getElementById('markAllAsReadBtn');
+    const clearAllNotificationsBtn = document.getElementById('clearAllNotificationsBtn');
+
+    // 切换通知面板显示状态
+    notificationBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notificationPanel.classList.toggle('hidden');
+        // 点击通知图标后，标记所有通知为已读
+        NotificationManager.markAllAsRead();
+        updateNotificationBadge();
+        loadNotifications();
+    });
+
+    // 点击页面其他地方关闭通知面板
+    document.addEventListener('click', () => {
+        notificationPanel.classList.add('hidden');
+    });
+
+    // 阻止通知面板内部点击事件冒泡
+    notificationPanel.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // 加载通知列表
+    function loadNotifications() {
+        const notifications = NotificationManager.getNotifications();
+        
+        if (notifications.length === 0) {
+            notificationList.innerHTML = `
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fa fa-bell-o text-4xl mb-2 opacity-50"></i>
+                    <p>暂无通知</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 生成通知列表HTML
+        const notificationsHTML = notifications.map(notification => {
+            const iconMap = {
+                system: 'fa-bullhorn',
+                like: 'fa-heart',
+                comment: 'fa-comment',
+                follow: 'fa-user-plus',
+                join: 'fa-users'
+            };
+
+            const colorMap = {
+                system: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+                like: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+                comment: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+                follow: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+                join: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+            };
+
+            return `
+                <div class="notification-item p-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${notification.isRead ? 'opacity-70' : ''}">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full ${colorMap[notification.type]} flex items-center justify-center flex-shrink-0">
+                            <i class="fa ${iconMap[notification.type]} text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-medium text-dark dark:text-white truncate">${notification.title}</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">${formatNotificationTime(notification.createdAt)}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 truncate">${notification.content}</p>
+                        </div>
+                        ${!notification.isRead ? '<div class="w-2 h-2 rounded-full bg-primary mt-2"></div>' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        notificationList.innerHTML = notificationsHTML;
+    }
+
+    // 更新通知徽章
+    function updateNotificationBadge() {
+        const unreadCount = NotificationManager.getUnreadCount();
+        if (unreadCount > 0) {
+            notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            notificationBadge.classList.remove('hidden');
+        } else {
+            notificationBadge.classList.add('hidden');
+        }
+    }
+
+    // 格式化通知时间
+    function formatNotificationTime(timestamp) {
+        const now = new Date();
+        const notificationTime = new Date(timestamp);
+        const diffMs = now - notificationTime;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffMins < 1) return '刚刚';
+        if (diffMins < 60) return `${diffMins}分钟前`;
+        if (diffHours < 24) return `${diffHours}小时前`;
+        if (diffDays < 7) return `${diffDays}天前`;
+        return notificationTime.toLocaleDateString();
+    }
+
+    // 标记所有通知为已读
+    markAllAsReadBtn.addEventListener('click', () => {
+        NotificationManager.markAllAsRead();
+        updateNotificationBadge();
+        loadNotifications();
+    });
+
+    // 清空所有通知
+    clearAllNotificationsBtn.addEventListener('click', () => {
+        if (confirm('确定要清空所有通知吗？')) {
+            NotificationManager.clearAllNotifications();
+            updateNotificationBadge();
+            loadNotifications();
+        }
+    });
+
+    // 初始化通知
+    function initNotifications() {
+        // 检查登录状态
+        if (UserManager.isLoggedIn()) {
+            // 加载通知
+            loadNotifications();
+            // 更新通知徽章
+            updateNotificationBadge();
+        }
+    }
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        initNotifications();
+        // 初始化消息徽章
+        if (UserManager.isLoggedIn()) {
+            updateMessagesBadge();
+        }
+    });
+    
+    // 更新消息徽章
+    function updateMessagesBadge() {
+        const messagesBadge = document.getElementById('messagesBadge');
+        if (messagesBadge && UserManager.isLoggedIn()) {
+            const unreadCount = MessageManager.getUnreadCount(UserManager.getCurrentUsername());
+            if (unreadCount > 0) {
+                messagesBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                messagesBadge.classList.remove('hidden');
+            } else {
+                messagesBadge.classList.add('hidden');
+            }
+        }
+    }
+
+    // 发送测试通知（用于演示）
+    function sendTestNotification() {
+        if (UserManager.isLoggedIn()) {
+            NotificationManager.sendSystemNotification(
+                '系统通知',
+                '欢迎使用Z+潮流社区！这是一条测试通知。',
+                'test-target'
+            );
+            updateNotificationBadge();
+        }
+    }
+
+    // 测试用：页面加载后3秒发送一条测试通知
+    setTimeout(() => {
+        if (UserManager.isLoggedIn()) {
+            sendTestNotification();
+        }
+    }, 3000);
     startCounting(); // 初始检查
+    
+    // 搜索功能
+    function handleSearch() {
+        let keyword = '';
+        const desktopInput = document.getElementById('desktopSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        
+        if (desktopInput && desktopInput.value.trim()) {
+            keyword = desktopInput.value.trim();
+        } else if (mobileInput && mobileInput.value.trim()) {
+            keyword = mobileInput.value.trim();
+        } else {
+            return;
+        }
+        
+        window.location.href = `search-results.html?q=${encodeURIComponent(keyword)}`;
+    }
+    
+    // 为桌面端搜索框添加回车事件
+    const desktopSearchInput = document.getElementById('desktopSearchInput');
+    if (desktopSearchInput) {
+        desktopSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+    }
+    
+    // 为移动端搜索框添加回车事件
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+    }
 
     // 平滑滚动
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

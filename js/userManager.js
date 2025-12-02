@@ -69,6 +69,8 @@ const UserManager = {
             signature: '分享我的潮流日常～',
             cover: `https://picsum.photos/800/300?random=${Date.now()}`, // 个人主页封面图
             points: 0, // 积分系统
+            role: 'user', // 权限字段：user, admin
+            permissions: ['read', 'write', 'comment', 'like', 'collect', 'community'], // 具体权限列表，添加community权限
             createTime: new Date().toISOString(),
             updateTime: new Date().toISOString()
         };
@@ -223,6 +225,113 @@ const UserManager = {
      */
     getAllUsers() {
         return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{}');
+    },
+
+    /**
+     * 检查用户是否有特定权限
+     * @param {Object} user - 用户对象
+     * @param {string} permission - 权限名称
+     * @returns {boolean} 是否有该权限
+     */
+    checkPermission(user, permission) {
+        if (!user) return false;
+        // 管理员拥有所有权限
+        if (user.role === 'admin') return true;
+        // 检查具体权限列表
+        return user.permissions && user.permissions.includes(permission);
+    },
+
+    /**
+     * 检查当前登录用户是否有特定权限
+     * @param {string} permission - 权限名称
+     * @returns {boolean} 是否有该权限
+     */
+    hasPermission(permission) {
+        const user = this.getCurrentUser();
+        return this.checkPermission(user, permission);
+    },
+
+    /**
+     * 检查用户是否是管理员
+     * @param {Object} user - 用户对象
+     * @returns {boolean} 是否是管理员
+     */
+    isAdmin(user) {
+        if (!user) return false;
+        return user.role === 'admin';
+    },
+
+    /**
+     * 检查当前登录用户是否是管理员
+     * @returns {boolean} 是否是管理员
+     */
+    isCurrentUserAdmin() {
+        const user = this.getCurrentUser();
+        return this.isAdmin(user);
+    },
+
+    /**
+     * 更新用户角色
+     * @param {string} username - 用户名
+     * @param {string} role - 角色名称
+     * @returns {Object} {success: boolean, message: string}
+     */
+    updateUserRole(username, role) {
+        if (!this.isCurrentUserAdmin()) {
+            return {
+                success: false,
+                message: '只有管理员才能修改用户角色'
+            };
+        }
+
+        const users = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{}');
+        if (!users[username]) {
+            return {
+                success: false,
+                message: '用户不存在'
+            };
+        }
+
+        users[username].role = role;
+        users[username].updateTime = new Date().toISOString();
+        localStorage.setItem(this.STORAGE_KEYS.USERS, JSON.stringify(users));
+
+        return {
+            success: true,
+            message: '角色更新成功'
+        };
+    },
+
+    /**
+     * 更新用户权限列表
+     * @param {string} username - 用户名
+     * @param {Array} permissions - 权限列表
+     * @returns {Object} {success: boolean, message: string}
+     */
+    updateUserPermissions(username, permissions) {
+        if (!this.isCurrentUserAdmin()) {
+            return {
+                success: false,
+                message: '只有管理员才能修改用户权限'
+            };
+        }
+
+        const users = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.USERS) || '{}');
+        if (!users[username]) {
+            return {
+                success: false,
+                message: '用户不存在'
+            };
+        }
+
+        users[username].permissions = permissions;
+        users[username].updateTime = new Date().toISOString();
+        localStorage.setItem(this.STORAGE_KEYS.USERS, JSON.stringify(users));
+
+        return {
+            success: true,
+            message: '权限更新成功'
+        };
     },
 
     /**

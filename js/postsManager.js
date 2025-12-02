@@ -42,6 +42,14 @@ const PostsManager = {
             };
         }
 
+        // 检查是否有发布权限
+        if (!UserManager.hasPermission('write')) {
+            return {
+                success: false,
+                message: '您没有发布动态的权限'
+            };
+        }
+
         const currentUser = UserManager.getCurrentUsername();
         const posts = this.getAllPosts();
 
@@ -102,6 +110,14 @@ const PostsManager = {
             };
         }
 
+        // 检查是否有点赞权限
+        if (!UserManager.hasPermission('like')) {
+            return {
+                success: false,
+                message: '您没有点赞权限'
+            };
+        }
+
         const currentUser = UserManager.getCurrentUsername();
         const posts = this.getAllPosts();
         const postIndex = posts.findIndex(post => post.id === postId);
@@ -151,6 +167,14 @@ const PostsManager = {
             };
         }
 
+        // 检查是否有评论权限
+        if (!UserManager.hasPermission('comment')) {
+            return {
+                success: false,
+                message: '您没有评论权限'
+            };
+        }
+
         if (!content || content.trim() === '') {
             return {
                 success: false,
@@ -196,6 +220,14 @@ const PostsManager = {
             return {
                 success: false,
                 message: '请先登录～'
+            };
+        }
+
+        // 检查是否有收藏权限
+        if (!UserManager.hasPermission('collect')) {
+            return {
+                success: false,
+                message: '您没有收藏权限'
             };
         }
 

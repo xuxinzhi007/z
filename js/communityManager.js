@@ -46,6 +46,14 @@ const CommunityManager = {
             };
         }
 
+        // 检查是否有社群管理权限
+        if (!UserManager.hasPermission('community')) {
+            return {
+                success: false,
+                message: '您没有创建社群的权限'
+            };
+        }
+
         const currentUser = UserManager.getCurrentUsername();
         const communities = this.getAllCommunities();
 
