@@ -19,6 +19,14 @@
     <script src="js/postsManager.js"></script>
     <!-- 引入核心主题引擎 -->
     <script src="js/theme-core.js"></script>
+    <!-- 引入分享管理模块 -->
+    <script src="js/shareManager.js"></script>
+    <!-- 引入举报管理模块 -->
+    <script src="js/reportManager.js"></script>
+    <!-- 引入拉黑管理模块 -->
+    <script src="js/blacklistManager.js"></script>
+    <!-- 引入懒加载管理模块 -->
+    <script src="js/lazyLoadManager.js"></script>
 
     <style>
         /* 页面特定样式 */
@@ -184,7 +192,7 @@
         const imagesHTML = post.images.length > 0 ? `
             <div class="grid grid-cols-${Math.min(post.images.length, 3)} gap-2 my-4">
                 ${post.images.slice(0, 3).map((img, idx) => `
-                    <img src="${img}" alt="图片${idx + 1}" class="rounded-lg w-full h-40 object-cover">
+                    <img data-src="${img}" alt="图片${idx + 1}" class="lazy-load rounded-lg w-full h-40 object-cover">
                 `).join('')}
             </div>
         ` : '';
@@ -237,6 +245,22 @@
                         <i class="fa ${isCollected ? 'fa-star' : 'fa-star-o'}"></i>
                         <span class="text-sm">${post.collects.length}</span>
                     </button>
+                    <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-accent transition-custom share-post-btn" data-post-id="${post.id}">
+                        <i class="fa fa-share-alt"></i>
+                        <span class="text-sm">分享</span>
+                    </button>
+                    <!-- 更多操作按钮 -->
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-custom">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </button>
+                        <!-- 下拉菜单 -->
+                        <div class="absolute right-0 top-full mt-2 w-32 bg-white dark:bg-dark-card rounded-lg shadow-lg py-2 z-50 hidden group-hover:block">
+                            <button class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors report-post-btn" data-post-id="${post.id}">
+                                <i class="fa fa-flag mr-2"></i>举报
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -244,7 +268,10 @@
 
     // 加载动态列表
     function loadPosts() {
-        const posts = PostsManager.getAllPosts();
+        let posts = PostsManager.getAllPosts();
+        // 过滤掉被拉黑用户的动态
+        posts = BlacklistManager.filterBlacklistedPosts(posts);
+        
         const container = document.getElementById('postsContainer');
         const loadMoreBtn = document.getElementById('loadMoreContainer');
 
@@ -274,7 +301,10 @@
 
     // 加载更多动态
     function loadMorePosts() {
-        const posts = PostsManager.getAllPosts();
+        let posts = PostsManager.getAllPosts();
+        // 过滤掉被拉黑用户的动态
+        posts = BlacklistManager.filterBlacklistedPosts(posts);
+        
         const container = document.getElementById('postsContainer');
         const loadMoreBtn = document.getElementById('loadMoreContainer');
 
@@ -296,6 +326,8 @@
 
         // 触发滚动动画
         observeScrollAnimations();
+        // 刷新懒加载，观察新添加的图片
+        LazyLoadManager.refresh();
     }
 
     // 点赞功能

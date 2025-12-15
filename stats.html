@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据统计 - Z+潮流社区</title>
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="css/mobile-optimization.css" rel="stylesheet">
+    <!-- 引入核心主题样式 -->
+    <style type="text/tailwindcss">
+        @import url('css/theme-base.css');
+    </style>
+
+    <!-- 引入用户管理模块 -->
+    <script src="js/userManager.js"></script>
+    <!-- 引入统计管理模块 -->
+    <script src="js/statsManager.js"></script>
+    <!-- 引入核心主题引擎 -->
+    <script src="js/theme-core.js"></script>
+
+    <style>
+        /* 页面特定样式 */
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark .stat-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .tag-item {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tag-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .user-rank-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            background: white;
+            dark:bg-slate-800;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .user-rank-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rank-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35, #FF7DAB);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        
+        .rank-number.top3 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+    </style>
+</head>
+<body class="bg-light dark:bg-dark text-dark dark:text-gray-100 antialiased transition-colors duration-300">
+    <!-- 背景光斑装饰 -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block">
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute bottom-0 left-1/4 w-96 h-96 bg-secondary/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob" style="animation-delay: 2s"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white/90 dark:bg-dark/90 backdrop-blur shadow-sm dark:shadow-none dark:border-b dark:border-white/5 py-4 transition-all">
+        <div class="container mx-auto px-4 md:px-6 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">Z</span>
+                </div>
+                <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Z+</span>
+            </a>
+
+            <!-- 标题 -->
+            <h1 class="text-xl font-bold dark:text-white">数据统计</h1>
+
+            <!-- 右侧操作区 -->
+            <div class="flex items-center space-x-4">
+                <!-- 主题切换 -->
+                <button id="theme-toggle" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 text-dark dark:text-yellow transition-custom hover:shadow-lg">
+                    <i class="fa fa-moon-o text-lg"></i>
+                </button>
+
+                <!-- 返回按钮 -->
+                <a href="index.html" class="flex items-center space-x-2 text-primary hover:text-secondary transition-custom">
+                    <i class="fa fa-arrow-left"></i>
+                    <span class="hidden sm:inline">返回</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-20 relative z-10">
+        <!-- 数据统计区 -->
+        <section class="py-12 bg-transparent">
+            <div class="container mx-auto px-4 md:px-6">
+                <!-- 页面标题 -->
+                <div class="text-center mb-12">
+                    <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 dark:text-white">
+                        数据<span class="text-primary">统计</span>
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-300 text-lg">
+                        查看社区的各项数据统计和趋势分析
+                    </p>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <!-- 总用户数 -->
+                    <div class="stat-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">总用户数</p>
+                                <h3 class="text-3xl font-bold dark:text-white" id="totalUsers">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl">
+                                <i class="fa fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 总动态数 -->
+                    <div class="stat-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">总动态数</p>
+                                <h3 class="text-3xl font-bold dark:text-white" id="totalPosts">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-2xl">
+                                <i class="fa fa-file-text-o"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 总社群数 -->
+                    <div class="stat-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">总社群数</p>
+                                <h3 class="text-3xl font-bold dark:text-white" id="totalCommunities">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-yellow/10 flex items-center justify-center text-yellow text-2xl">
+                                <i class="fa fa-group"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 总点赞数 -->
+                    <div class="stat-card bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">总点赞数</p>
+                                <h3 class="text-3xl font-bold dark:text-white" id="totalLikes">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent text-2xl">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <!-- 最近7天动态趋势 -->
+                    <div class="bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">最近7天动态趋势</h2>
+                        <div class="chart-container">
+                            <canvas id="postTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 互动统计 -->
+                    <div class="bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">互动统计</h2>
+                        <div class="chart-container">
+                            <canvas id="interactionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门标签和活跃用户 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <!-- 热门标签 -->
+                    <div class="bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">热门标签</h2>
+                        <div class="tag-cloud" id="hotTagsContainer">
+                            <!-- 热门标签将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 活跃用户 -->
+                    <div class="bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">活跃用户</h2>
+                        <div class="space-y-4" id="activeUsersContainer">
+                            <!-- 活跃用户将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门社群 -->
+                <div class="bg-white dark:bg-dark-card rounded-xl p-6 shadow-sm dark:shadow-none dark:border dark:border-white/10 mb-12">
+                    <h2 class="text-xl font-bold mb-6 dark:text-white">热门社群</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="hotCommunitiesContainer">
+                        <!-- 热门社群将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 检查登录状态
+            if (!UserManager.isLoggedIn()) {
+                alert('请先登录～');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 主题图标更新
+            if (window.ZPlus && window.ZPlus.ThemeManager) {
+                ZPlus.ThemeManager.updateToggleIcons();
+            }
+
+            // 加载统计数据
+            loadStats();
+        });
+
+        /**
+         * 加载统计数据
+         */
+        function loadStats() {
+            // 获取系统统计数据
+            const stats = StatsManager.getSystemStats();
+
+            // 更新统计卡片数据
+            document.getElementById('totalUsers').textContent = stats.totalUsers;
+            document.getElementById('totalPosts').textContent = stats.totalPosts;
+            document.getElementById('totalCommunities').textContent = stats.totalCommunities;
+            document.getElementById('totalLikes').textContent = stats.totalLikes;
+
+            // 绘制最近7天动态趋势图
+            drawPostTrendChart(stats.recentPostTrend);
+
+            // 绘制互动统计图
+            drawInteractionChart({
+                likes: stats.totalLikes,
+                collects: StatsManager.getTotalCollects(),
+                comments: 0 // 评论功能待实现
+            });
+
+            // 渲染热门标签
+            renderHotTags(stats.hotTags);
+
+            // 渲染活跃用户
+            renderActiveUsers(stats.activeUsers);
+
+            // 渲染热门社群
+            renderHotCommunities(stats.hotCommunities);
+        }
+
+        /**
+         * 绘制最近7天动态趋势图
+         * @param {Object} trendData - 趋势数据
+         */
+        function drawPostTrendChart(trendData) {
+            const ctx = document.getElementById('postTrendChart').getContext('2d');
+            
+            // 准备数据
+            const labels = Object.keys(trendData);
+            const data = Object.values(trendData);
+
+            // 创建图表
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '动态数量',
+                        data: data,
+                        borderColor: '#FF6B35',
+                        backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FF6B35',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#FF6B35',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                dark: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            ticks: {
+                                color: 'rgba(0, 0, 0, 0.7)',
+                                dark: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: 'rgba(0, 0, 0, 0.7)',
+                                dark: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * 绘制互动统计图
+         * @param {Object} interactionData - 互动数据
+         */
+        function drawInteractionChart(interactionData) {
+            const ctx = document.getElementById('interactionChart').getContext('2d');
+
+            // 创建图表
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['点赞', '收藏', '评论'],
+                    datasets: [{
+                        data: [interactionData.likes, interactionData.collects, interactionData.comments],
+                        backgroundColor: [
+                            '#FF6B35',
+                            '#FFD166',
+                            '#40BFFF'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(0, 0, 0, 0.7)',
+                                dark: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#FF6B35',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * 渲染热门标签
+         * @param {Array} tags - 热门标签数组
+         */
+        function renderHotTags(tags) {
+            const container = document.getElementById('hotTagsContainer');
+            
+            if (tags.length === 0) {
+                container.innerHTML = '<p class="text-center py-8 text-gray-500 dark:text-gray-400">暂无热门标签</p>';
+                return;
+            }
+
+            container.innerHTML = tags.map(tag => `
+                <div class="tag-item" style="font-size: ${14 + tag.count * 0.5}px">
+                    ${tag.tag} (${tag.count})
+                </div>
+            `).join('');
+        }
+
+        /**
+         * 渲染活跃用户
+         * @param {Array} users - 活跃用户数组
+         */
+        function renderActiveUsers(users) {
+            const container = document.getElementById('activeUsersContainer');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-center py-8 text-gray-500 dark:text-gray-400">暂无活跃用户</p>';
+                return;
+            }
+
+            container.innerHTML = users.map((user, index) => `
+                <div class="user-rank-item">
+                    <div class="rank-number ${index < 3 ? 'top3' : ''}">${index + 1}</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold dark:text-white">${user.username}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">发布了 ${user.count} 条动态</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * 渲染热门社群
+         * @param {Array} communities - 热门社群数组
+         */
+        function renderHotCommunities(communities) {
+            const container = document.getElementById('hotCommunitiesContainer');
+            
+            if (communities.length === 0) {
+                container.innerHTML = '<p class="text-center py-8 text-gray-500 dark:text-gray-400 col-span-full">暂无热门社群</p>';
+                return;
+            }
+
+            container.innerHTML = communities.map(community => `
+                <div class="stat-card bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <img src="${community.avatar}" alt="${community.name}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="flex-1">
+                            <h3 class="font-bold dark:text-white">${community.name}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${community.memberCount} 成员</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

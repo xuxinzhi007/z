@@ -27,6 +27,16 @@
     <script src="js/theme-core.js"></script>
     <!-- 引入通知管理模块 -->
     <script src="js/notificationManager.js"></script>
+    <!-- 引入搜索管理模块 -->
+    <script src="js/searchManager.js"></script>
+    <!-- 引入分享管理模块 -->
+    <script src="js/shareManager.js"></script>
+    <!-- 引入举报管理模块 -->
+    <script src="js/reportManager.js"></script>
+    <!-- 引入拉黑管理模块 -->
+    <script src="js/blacklistManager.js"></script>
+    <!-- 引入懒加载管理模块 -->
+    <script src="js/lazyLoadManager.js"></script>
 
     <style>
         /* CSS 变量定义 */
@@ -1308,14 +1318,40 @@
         document.getElementById('followersCount').textContent = 0;
         document.getElementById('likesCount').textContent = user.points || 0; // 使用积分代替获赞数
 
-        // 显示编辑资料按钮(因为是自己的主页)
+        // 显示不同的按钮根据是否是自己的主页
         const actionButtons = document.getElementById('actionButtons');
-        actionButtons.innerHTML = `
-            <button class="action-button follow" onclick="editProfile()">
-                <i class="fa fa-edit"></i>
-                <span>编辑资料</span>
-            </button>
-        `;
+        const currentUser = UserManager.getCurrentUsername();
+        if (user.username === currentUser) {
+            // 自己的主页显示编辑资料按钮
+            actionButtons.innerHTML = `
+                <button class="action-button follow" onclick="editProfile()">
+                    <i class="fa fa-edit"></i>
+                    <span>编辑资料</span>
+                </button>
+            `;
+        } else {
+            // 检查是否已拉黑
+            const isBlacklisted = BlacklistManager.isUserBlacklisted(user.username);
+            // 其他用户主页显示关注、私信、举报和拉黑按钮
+            actionButtons.innerHTML = `
+                <button class="action-button follow" onclick="followUser('${user.username}')">
+                    <i class="fa fa-plus"></i>
+                    <span>关注</span>
+                </button>
+                <button class="action-button message" onclick="messageUser('${user.username}')">
+                    <i class="fa fa-envelope"></i>
+                    <span>私信</span>
+                </button>
+                <button class="action-button gift" onclick="reportUser('${user.username}')">
+                    <i class="fa fa-flag"></i>
+                    <span>举报</span>
+                </button>
+                <button class="action-button ${isBlacklisted ? 'following' : 'gift'}" onclick="toggleBlacklist('${user.username}')">
+                    <i class="fa ${isBlacklisted ? 'fa-check' : 'fa-ban'}"></i>
+                    <span>${isBlacklisted ? '已拉黑' : '拉黑'}</span>
+                </button>
+            `;
+        }
     }
 
     // 编辑资料
@@ -1332,6 +1368,35 @@
                 alert(result.message);
             }
         }
+    }
+
+    // 举报用户
+    function reportUser(username) {
+        ReportManager.showReportModal(ReportManager.REPORT_TYPES.USER, username);
+    }
+
+    // 拉黑/取消拉黑用户
+    function toggleBlacklist(username) {
+        const isBlacklisted = BlacklistManager.isUserBlacklisted(username);
+        if (isBlacklisted) {
+            BlacklistManager.showUnblacklistModal(username);
+        } else {
+            BlacklistManager.showBlacklistModal(username);
+        }
+        // 重新加载页面以更新按钮状态
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
+
+    // 关注用户（占位函数）
+    function followUser(username) {
+        alert('关注功能待实现');
+    }
+
+    // 私信用户（占位函数）
+    function messageUser(username) {
+        alert('私信功能待实现');
     }
 
     // 加载用户发布的动态
@@ -1386,7 +1451,7 @@
                 ${post.images.length > 0 ? `
                     <div class="grid gap-2 mb-3" style="grid-template-columns: repeat(${Math.min(post.images.length, 3)}, 1fr);">
                         ${post.images.slice(0, 3).map(img => `
-                            <img src="${img}" alt="动态图" class="rounded-lg w-full h-40 object-cover">
+                            <img data-src="${img}" alt="动态图" class="lazy-load rounded-lg w-full h-40 object-cover">
                         `).join('')}
                     </div>
                 ` : ''}
@@ -1395,6 +1460,7 @@
                     <button class="hover:text-primary"><i class="fa fa-heart-o mr-1"></i>${post.likes.length}</button>
                     <button class="hover:text-primary"><i class="fa fa-comment-o mr-1"></i>${post.comments.length}</button>
                     <button class="hover:text-primary"><i class="fa fa-star-o mr-1"></i>${post.collects.length}</button>
+                    <button class="hover:text-primary share-post-btn" data-post-id="${post.id}"><i class="fa fa-share-alt mr-1"></i>分享</button>
                 </div>
             </div>
         `).join('');

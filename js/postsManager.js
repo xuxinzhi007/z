@@ -53,13 +53,32 @@ const PostsManager = {
         const currentUser = UserManager.getCurrentUsername();
         const posts = this.getAllPosts();
 
+        // 敏感词检测和过滤
+        let content = postData.content || '';
+        let tags = postData.tags || [];
+        let hasSensitiveWords = false;
+        let foundWords = [];
+
+        // 检查内容中的敏感词
+        if (typeof ContentModerationManager !== 'undefined') {
+            const contentModeration = ContentModerationManager.moderateText(content);
+            content = contentModeration.filteredText;
+            hasSensitiveWords = contentModeration.hasSensitiveWords;
+            foundWords = contentModeration.foundWords;
+
+            // 检查标签中的敏感词
+            tags = tags.map(tag => {
+                return ContentModerationManager.filterSensitiveWords(tag);
+            });
+        }
+
         // 创建新动态（对齐标准结构）
         const newPost = {
             id: Date.now() + Math.floor(Math.random() * 1000), // 唯一ID
             username: currentUser, // 关联发布者
-            content: postData.content || '',
+            content: content,
             images: postData.images || [], // 最多3张
-            tags: postData.tags || [], // 最多3个
+            tags: tags, // 最多3个
             createTime: new Date().toLocaleString(), // 发布时间
             likes: [], // 点赞用户列表（存用户名，避免重复点赞）
             comments: [], // 评论列表
@@ -70,9 +89,15 @@ const PostsManager = {
         posts.unshift(newPost);
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(posts));
 
+        // 如果有敏感词，提示用户
+        let message = '发布成功！';
+        if (hasSensitiveWords) {
+            message += ` 检测到敏感词：${foundWords.join('、')}，已自动过滤`;
+        }
+
         return {
             success: true,
-            message: '发布成功！',
+            message: message,
             post: newPost
         };
     },
@@ -182,6 +207,17 @@ const PostsManager = {
             };
         }
 
+        // 敏感词检测和过滤
+        let filteredContent = content.trim();
+        let hasSensitiveWords = false;
+
+        // 检查评论内容中的敏感词
+        if (typeof ContentModerationManager !== 'undefined') {
+            const moderationResult = ContentModerationManager.moderateText(filteredContent);
+            filteredContent = moderationResult.filteredText;
+            hasSensitiveWords = moderationResult.hasSensitiveWords;
+        }
+
         const currentUser = UserManager.getCurrentUsername();
         const posts = this.getAllPosts();
         const postIndex = posts.findIndex(post => post.id === postId);
@@ -196,16 +232,22 @@ const PostsManager = {
         const comment = {
             id: Date.now() + Math.floor(Math.random() * 1000),
             username: currentUser,
-            content: content.trim(),
+            content: filteredContent,
             createTime: new Date().toLocaleString()
         };
 
         posts[postIndex].comments.push(comment);
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(posts));
 
+        // 如果有敏感词，提示用户
+        let message = '评论成功';
+        if (hasSensitiveWords) {
+            message += ' 检测到敏感词，已自动过滤';
+        }
+
         return {
             success: true,
-            message: '评论成功',
+            message: message,
             comment: comment
         };
     },
