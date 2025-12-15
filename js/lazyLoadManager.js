@@ -78,4 +78,4 @@ class LazyLoadManager {
 }
 
 // 初始化懒加载管理器
-const LazyLoadManager = new LazyLoadManager();
+const lazyLoadManager = new LazyLoadManager();

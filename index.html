@@ -1554,9 +1554,6 @@
 
     // 检查是否从注册页跳转过来
     window.addEventListener('DOMContentLoaded', () => {
-        // 初始化主题按钮图标
-        updateThemeToggleIcons();
-
         const urlParams = new URLSearchParams(window.location.search);
         const registered = urlParams.get('registered');
         const tag = urlParams.get('tag');
@@ -1817,19 +1814,10 @@
 
         // 3. 高级交互初始化 (延迟执行，优先保证首屏渲染)
         setTimeout(() => {
-            init3DTilt();
-            
-            // 滚动监听 (使用 requestAnimationFrame 优化)
-            let ticking = false;
-            window.addEventListener('scroll', () => {
-                if (!ticking) {
-                    window.requestAnimationFrame(() => {
-                        handleParallax();
-                        ticking = false;
-                    });
-                    ticking = true;
-                }
-            });
+            // 使用TiltEngine初始化3D倾斜效果
+            if (window.ZPlus && window.ZPlus.TiltEngine) {
+                window.ZPlus.TiltEngine.init();
+            }
         }, 800);
         
     }, { once: true });
